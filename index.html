@@ -45,12 +45,24 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
         }).addTo(map);
         L.marker([33.718837, 73.023139])
         .addTo(map)
-        .bindPopup('D-20, NDU Islamabad')
+        .bindPopup('D-20, NDU Islamabad', { autoClose: false })
         .openPopup();
+       L.circle([33.718837, 73.023139], {
+            radius: 2000,
+            color: 'red',         // Border color
+            fillColor: '#f03',    // Inside fill color
+            fillOpacity: 0.3      // Transparency of the fill
+        }).addTo(map);
         L.marker([33.6423, 72.9906])
         .addTo(map)
-        .bindPopup('NUST H-12, Islamabad')
+       .bindPopup('NUST H-12, Islamabad', { autoClose: false })
         .openPopup();
+         L.circle([33.6423, 72.9906], {
+            radius: 2000,
+            color: 'blue',         // Border color
+            fillColor: 'blue',    // Inside fill color
+            fillOpacity: 0.3      // Transparency of the fill
+        }).addTo(map);
         </script>
 </body>
 </html>
