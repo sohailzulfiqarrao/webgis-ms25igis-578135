@@ -3,6 +3,7 @@
 ![Checkpoint-3](checkpoint-3.png)
 ![Checkpoint-4](checkpoint-4.png)
 ![Checkpoint-5](checkpoint-5.png)!
+![Map Circles & Markers](circle.png)
 
 1.	Change in network requests: Initially, the browser only made a single request for the index.html file. After adding the Leaflet script, the browser makes dozens of requests to fetch individual 256 by 256 pixel background map tile images. This happens because the map is not a static picture, but rather an ongoing conversation with a server that loads new tiles as the map is viewed or panned. 
 2.	HTML vs. CSS: HTML dictates what content exists on the page, whereas CSS controls how that content looks. An example of HTML is <h1>Islamabad</h1>, which structuralizes text as a top-level heading. An example of CSS is the #map rule (height: 480px; width: 100%;), which defines the dimensions and appearance of the map container. 
