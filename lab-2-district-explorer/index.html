@@ -12,22 +12,31 @@
 <body>
 
 <header>
-   <h1>District Explorer</h1>
-   <p class="subtitle">Districts of Pakistan, shaded by population</p>
+   <img class="logo" src="images/nust.jpg" alt="NUST logo: Defining futures">
+   <div class="titles">
+      <h1>District Explorer</h1>
+      <p class="subtitle">Districts of Pakistan, shaded by population</p>
+   </div>
 </header>
 
 <div id="panel">
-   <label for="province">Province</label>
-   <select id="province">
-      <option value="all">All provinces</option>
-   </select>
-   <label for="search">District</label>
-   <input id="search" type="search" placeholder="Search by name" autocomplete="off">
-   <label for="classes">Classes</label>
-   <select id="classes">
-      <option value="manual">Manual breaks</option>
-      <option value="quantile">Quantiles</option>
-   </select>
+   <div class="field">
+      <label for="province">Province</label>
+      <select id="province">
+         <option value="all">All provinces</option>
+      </select>
+   </div>
+   <div class="field">
+      <label for="search">District</label>
+      <input id="search" type="search" placeholder="Search by name" autocomplete="off">
+   </div>
+   <div class="field">
+      <label for="classes">Classes</label>
+      <select id="classes">
+         <option value="manual">Manual breaks</option>
+         <option value="quantile">Quantiles</option>
+      </select>
+   </div>
    <span id="count">loading...</span>
 </div>
 
