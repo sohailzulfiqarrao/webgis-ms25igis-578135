@@ -7,10 +7,23 @@ const map = L.map('map', {
    minZoom: 5
 }).setView([30.3753, 69.3451], 5);
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+// Optional 1: two basemaps and a layer control to switch between them.
+const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
    maxZoom: 19,
    attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
+
+// Note the order in this URL: Esri wants {z}/{y}/{x}, not {z}/{x}/{y}.
+const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+   maxZoom: 19,
+   attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+});
+
+L.control.layers(
+   { 'OpenStreetMap': osm, 'Satellite (Esri)': satellite },
+   null,
+   { position: 'topright' }
+).addTo(map);
 
 let districts = null;
 let layer = null;
