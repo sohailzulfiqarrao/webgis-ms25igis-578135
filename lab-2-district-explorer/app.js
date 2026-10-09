@@ -28,6 +28,14 @@ L.control.layers(
 let districts = null;
 let layer = null;
 
+// Classification: five colours, four break values. The breaks are either the
+// manual ones or quantiles (optional 5), chosen with the "Classes" drop-down.
+const COLOURS = ['#fdd0a2', '#fd8d3c', '#f16913', '#d94801', '#7f2704'];
+const NO_DATA_COLOUR = '#c9cfd1';
+const MANUAL_BREAKS = [300000, 750000, 1500000, 3000000];
+let quantileBreaksList = [];
+let breaks = MANUAL_BREAKS;
+
 async function loadData() {
    const response = await fetch('data/districts.geojson');
 
@@ -40,6 +48,13 @@ async function loadData() {
    console.log('Features Count:', districts.features.length);
    console.log('First Feature:', districts.features[0]);
    console.log('distinct Provinces:', [...new Set(districts.features.map(f => f.properties.province))].sort());
+
+   quantileBreaksList = quantileBreaks(
+      districts.features.map(f => f.properties.pop_2023)
+         .filter(v => typeof v === 'number'),
+      COLOURS.length
+   );
+   console.log('quantile breaks:', quantileBreaksList);
 
    fillProvinceList();
    draw(districts.features);
@@ -54,14 +69,10 @@ function show(value) {
    return typeof value === 'number' ? value.toLocaleString() : value;
 }
 
-// Manual classification: five classes, four break values.
+// The class is the number of break values the population is above.
 function colourFor(population) {
-   if (population === null || population === undefined) return '#c9cfd1';
-   if (population > 3000000) return '#7f2704';
-   if (population > 1500000) return '#d94801';
-   if (population > 750000) return '#f16913';
-   if (population > 300000) return '#fd8d3c';
-   return '#fdd0a2';
+   if (population === null || population === undefined) return NO_DATA_COLOUR;
+   return COLOURS[breaks.filter(b => population > b).length];
 }
 
 function styleFor(feature) {
@@ -71,6 +82,20 @@ function styleFor(feature) {
       fillColor: colourFor(feature.properties.pop_2023),
       fillOpacity: 0.8
    };
+}
+
+// Optional 5: quantile breaks computed from the data (values rounded to the nearest 1,000).
+function quantileBreaks(values, classes) {
+   const sorted = values.slice().sort((a, b) => a - b);
+   const result = [];
+   for (let i = 1; i < classes; i++) {
+      const position = (sorted.length - 1) * i / classes;
+      const low = Math.floor(position);
+      const high = Math.min(low + 1, sorted.length - 1);
+      const value = sorted[low] + (sorted[high] - sorted[low]) * (position - low);
+      result.push(Math.round(value / 1000) * 1000);
+   }
+   return result;
 }
 
 function draw(features) {
@@ -147,21 +172,45 @@ function applyFilters() {
 document.getElementById('province').addEventListener('change', applyFilters);
 document.getElementById('search').addEventListener('input', applyFilters);
 
+// Switching the classification only restyles the layer: the view stays where it is.
+document.getElementById('classes')
+   .addEventListener('change', function (event) {
+      breaks = event.target.value === 'quantile' ? quantileBreaksList : MANUAL_BREAKS;
+      if (layer) {
+         layer.setStyle(styleFor);
+      }
+      fillLegend(legend.getContainer());
+   });
+
+// 300000 -> "300k", 1500000 -> "1.5m"
+function shortNumber(n) {
+   return n >= 1000000 ? +(n / 1000000).toFixed(2) + 'm' : Math.round(n / 1000) + 'k';
+}
+
+function legendLabels() {
+   const labels = ['under ' + shortNumber(breaks[0])];
+   for (let i = 1; i < breaks.length; i++) {
+      labels.push(shortNumber(breaks[i - 1]) + ' to ' + shortNumber(breaks[i]));
+   }
+   labels.push('over ' + shortNumber(breaks[breaks.length - 1]));
+   return labels;
+}
+
+function fillLegend(div) {
+   const labels = legendLabels();
+   let html = '';
+   for (let i = 0; i < COLOURS.length; i++) {
+      html += '<i style="background:' + COLOURS[i] + '"></i> ' + labels[i] + '<br>';
+   }
+   html += '<i style="background:' + NO_DATA_COLOUR + '"></i> no census data';
+   div.innerHTML = html;
+}
+
 const legend = L.control({ position: 'bottomright' });
 
 legend.onAdd = function () {
    const div = L.DomUtil.create('div', 'legend');
-   const breaks = [0, 300000, 750000, 1500000, 3000000];
-   const labels = ['under 300k', '300k to 750k', '750k to 1.5m',
-                   '1.5m to 3m', 'over 3m'];
-
-   for (let i = 0; i < breaks.length; i++) {
-      div.innerHTML +=
-         '<i style="background:' + colourFor(breaks[i] + 1) + '"></i> ' +
-         labels[i] + '<br>';
-   }
-   div.innerHTML +=
-      '<i style="background:' + colourFor(null) + '"></i> no census data';
+   fillLegend(div);
    return div;
 };
 
