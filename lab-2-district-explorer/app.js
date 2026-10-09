@@ -87,3 +87,23 @@ function draw(features) {
    document.getElementById('count').textContent =
       features.length + ' districts';
 }
+
+const legend = L.control({ position: 'bottomright' });
+
+legend.onAdd = function () {
+   const div = L.DomUtil.create('div', 'legend');
+   const breaks = [0, 300000, 750000, 1500000, 3000000];
+   const labels = ['under 300k', '300k to 750k', '750k to 1.5m',
+                   '1.5m to 3m', 'over 3m'];
+
+   for (let i = 0; i < breaks.length; i++) {
+      div.innerHTML +=
+         '<i style="background:' + colourFor(breaks[i] + 1) + '"></i> ' +
+         labels[i] + '<br>';
+   }
+   div.innerHTML +=
+      '<i style="background:' + colourFor(null) + '"></i> no census data';
+   return div;
+};
+
+legend.addTo(map);
