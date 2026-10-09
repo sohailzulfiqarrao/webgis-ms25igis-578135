@@ -103,6 +103,17 @@ function fillProvinceList() {
    }
 }
 
+document.getElementById('province')
+   .addEventListener('change', function (event) {
+      const chosen = event.target.value;
+      const subset = chosen === 'all'
+         ? districts.features
+         : districts.features.filter(
+               f => f.properties.province === chosen
+            );
+      draw(subset);
+   });
+
 const legend = L.control({ position: 'bottomright' });
 
 legend.onAdd = function () {
