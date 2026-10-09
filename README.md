@@ -4,6 +4,7 @@ Laboratory work for the Web GIS course, MS Remote Sensing and GIS, Institute of 
 (IGIS), NUST. One repository for the whole semester, one folder per lab, published as a single GitHub Pages site.
 
 **Site:** https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/
+
 **Course page:** https://shahidnawazkhan.github.io/Fall2026WebGIS/
 
 ## Labs
