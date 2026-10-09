@@ -333,7 +333,7 @@ Serving the folder over HTTP, as Live Server does at `127.0.0.1:5500`, makes it 
 ### 1. Second basemap and a layer control
 
 `L.control.layers` switches between **OpenStreetMap** and **Satellite (Esri)** (World Imagery), using the layer button
-at the top right of the map.Esri's tile URL is `{z}/{y}/{x}`, not `{z}/{x}/{y}`.
+at the top right of the map. Esri's tile URL is `{z}/{y}/{x}`, not `{z}/{x}/{y}`.
 **Check:** after switching, 24 of 24 Esri tiles loaded and no OpenStreetMap tiles remained.
 
 ![Additional task 1: Esri satellite imagery under the districts, with the layer control open](images/additional-1-basemap-satellite.png)
