@@ -114,15 +114,21 @@ function draw(features) {
 }
 
 // Fill the drop-down from the data rather than typing the names by hand.
+// Optional 4: most districts first instead of alphabetical order.
 function fillProvinceList() {
    const select = document.getElementById('province');
-   const provinces = [...new Set(
-      districts.features.map(f => f.properties.province)
-   )].sort();
+   const counts = {};
+   for (const f of districts.features) {
+      const name = f.properties.province;
+      counts[name] = (counts[name] || 0) + 1;
+   }
+   const provinces = Object.keys(counts).sort(
+      (a, b) => counts[b] - counts[a] || a.localeCompare(b)
+   );
    for (const name of provinces) {
       const option = document.createElement('option');
       option.value = name;
-      option.textContent = name;
+      option.textContent = name + ' (' + counts[name] + ')';
       select.appendChild(option);
    }
 }
