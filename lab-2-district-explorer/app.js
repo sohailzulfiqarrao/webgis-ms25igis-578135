@@ -11,3 +11,20 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
    maxZoom: 19,
    attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
+
+let districts = null;
+
+async function loadData() {
+   const response = await fetch('data/districts.geojson');
+
+   if (!response.ok) {
+      console.error('Request failed with status', response.status);
+      return;
+   }
+
+   districts = await response.json();
+   console.log('Features Count:', districts.features.length);
+   console.log('First Feature:', districts.features[0]);
+   console.log('distinct Provinces:', [...new Set(districts.features.map(f => f.properties.province))].sort());
+}
+loadData();
