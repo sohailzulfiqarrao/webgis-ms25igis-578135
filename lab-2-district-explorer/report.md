@@ -324,3 +324,64 @@ Serving the folder over HTTP, as Live Server does at `127.0.0.1:5500`, makes it 
 - Live page (GitHub Pages, branch `main`, folder `/`): https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-2-district-explorer/
 - All labs: https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/
 - Commit history: `git log --oneline`
+
+---
+
+## Additional Task – optional exercises from the manual
+
+The manual ends with five optional exercises. All five are in the live page. The checkpoint screenshots above were
+taken before they were added, so they show the core lab only; the screenshots for the extras are here. The checks
+were run in the browser against the finished page.
+
+### 1. Second basemap and a layer control
+
+`L.control.layers` switches between **OpenStreetMap** and **Satellite (Esri)** (World Imagery), using the layer button
+at the top right of the map. I first tried CARTO's light basemap, but its free tiles now return an "API key required"
+watermark, so I replaced it with Esri's, which needs no key. Esri's tile URL is `{z}/{y}/{x}`, not `{z}/{x}/{y}`.
+**Check:** after switching, 24 of 24 Esri tiles loaded and no OpenStreetMap tiles remained.
+
+![Additional task 1: Esri satellite imagery under the districts, with the layer control open](images/additional-1-basemap-satellite.png)
+
+### 2. Highlight a district on mouseover
+
+`mouseover` sets the district's outline `weight` to 3 (and a darker colour) and brings it to the front; `mouseout`
+calls `layer.resetStyle`. **Check:** the outline weight went 1, then 3 while hovered, then back to 1.
+
+![Additional task 2: Punjab selected, with the pointer over Multan, whose outline is thicker and darker](images/additional-2-hover.png)
+
+### 3. Text box that filters by name
+
+The **District** box filters as the user types (case-insensitive, matching anywhere in the name) and combines with the
+province drop-down; both call one function, `applyFilters()`. **Check:** "pur" gives 9 districts, "LAHORE" gives 1,
+"zzzz" gives 0 (an empty map, no error), and Sindh plus "pur" gives Khairpur, Mirpur Khas and Shikarpur.
+
+![Additional task 3: "pur" typed in the District box gives 9 districts](images/additional-3-search.png)
+
+### 4. Drop-down sorted by district count
+
+`fillProvinceList` counts the districts per province and sorts by that count, largest first and alphabetically for ties.
+The count is shown in each label: Punjab (36), Balochistan (35), Khyber Pakhtunkhwa (35), Sindh (29),
+Gilgit Baltistan (14), Azad Kashmir (10), Islamabad (1).
+
+![Additional task 4: the province list with the drop-down expanded to show the order and the counts](images/additional-4-sorted-dropdown.png)
+
+### 5. Quantile breaks instead of manual ones
+
+`quantileBreaks()` sorts the 135 population values and cuts them into five classes (linear interpolation, rounded to
+the nearest 1,000). The **Classes** drop-down switches between the two without moving the map, and the legend rewrites
+itself. The manual breaks remain the default, so the classification described in section 4 still applies.
+
+![Additional task 5: quantile classes selected, with the legend rewritten](images/additional-5-quantiles.png)
+
+| Class | Manual breaks | Districts | Quantile breaks | Districts |
+|---|---|---|---|---|
+| 1 | under 300k | 20 | under 361k | 27 |
+| 2 | 300k to 750k | 23 | 361k to 1.03m | 27 |
+| 3 | 750k to 1.5m | 28 | 1.03m to 1.75m | 27 |
+| 4 | 1.5m to 3m | 40 | 1.75m to 2.62m | 27 |
+| 5 | over 3m | 24 | over 2.62m | 27 |
+| no census data | grey | 25 | grey | 25 |
+
+Quantiles put the same number of districts in every class, so the colours are evenly spread, but the break values
+(361,000 and so on) are awkward numbers and the classes are very uneven in width. The manual breaks are easier to
+read in a legend, which is why they stay the default.
