@@ -1,30 +1,41 @@
-# Web GIS - Semester Project
+# Web GIS Labs, Fall 2026
 
-This repository contains the semester project and weekly laboratory exercises for the Web GIS course at the Institute of Geographical Information Systems (IGIS), National University of Sciences and Technology (NUST). 
+Laboratory work for the Web GIS course, MS Remote Sensing and GIS, Institute of Geographical Information Systems
+(IGIS), NUST. One repository for the whole semester, one folder per lab, published as a single GitHub Pages site.
 
-## Project Overview
-Starting with Lab 01, this repository demonstrates the fundamental concepts of web mapping. It currently features a foundational web page containing an interactive map of Islamabad with a marker on the NUST H-12 campus, built using the Leaflet library. By the end of the semester, this project will evolve into a full Web GIS application backed by a database.
+**Site:** https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/
+**Course page:** https://shahidnawazkhan.github.io/Fall2026WebGIS/
 
-## Technologies Used
-* **HTML5:** Page structure and map container.
-* **CSS3:** Styling and layout positioning.
-* **JavaScript:** Interactive map functionality and API calls.
-* **Leaflet.js:** Open-source JavaScript library for mobile-friendly interactive maps.
-* **OpenStreetMap (OSM):** Base map tile provider.
+## Labs
 
-## How to Run Locally
-To view and interact with the map on your local machine, avoid opening the `index.html` file directly in your browser, as local file security restrictions will block external data loading.
+| Lab | Folder | Live map | Report |
+|---|---|---|---|
+| 01 – Your First Web Map | [`lab-1/`](lab-1/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-1/) | [report](lab-1/reports/lab01-report.md) |
+| 02 – District Explorer | [`lab-2-district-explorer/`](lab-2-district-explorer/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-2-district-explorer/) | [report](lab-2-district-explorer/report.md) |
 
-1. Clone this repository to your local machine (recommended directory: `C:\webgis`).
-2. Open the project folder in **Visual Studio Code**.
-3. Install the **Live Server** extension by Ritwick Dey.
-4. Right-click on `index.html` and select **Open with Live Server**.
-5. The application will open in your default browser at `http://127.0.0.1:5500/index.html`.
+## Layout
 
-## Live Demo
-You can view the live, published version of this map via GitHub Pages:
-**[View Live Map](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/)**
+```
+index.html                  landing page listing every lab
+assets/site.css             its stylesheet
+lab-1/                      Lab 01: Leaflet map of Islamabad
+lab-2-district-explorer/    Lab 02: districts of Pakistan from a shapefile
+    index.html  style.css  app.js  data/districts.geojson  report.md
+```
+
+Each new lab gets its own folder and a new card on the landing page.
+
+## Run it locally
+
+Do not open a page by double-clicking it: the browser blocks data requests for pages opened from the file system.
+Serve the repository folder instead, for example with the VS Code **Live Server** extension (right-click
+`index.html`, *Open with Live Server*, which opens `http://127.0.0.1:5500`), or from a terminal:
+
+```
+python -m http.server 5500
+```
+
+Then open `/`, `/lab-1/` or `/lab-2-district-explorer/`.
 
 ---
-**Author:** Sohail Zulfiqar  
-*MS GIS & Remote Sensing*
+**Author:** Sohail Zulfiqar, MS GIS & Remote Sensing
