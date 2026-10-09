@@ -110,7 +110,7 @@ function draw(features) {
    }
 
    document.getElementById('count').textContent =
-      features.length + ' districts';
+      features.length + (features.length === 1 ? ' district' : ' districts');
 }
 
 // Fill the drop-down from the data rather than typing the names by hand.
@@ -127,16 +127,19 @@ function fillProvinceList() {
    }
 }
 
-document.getElementById('province')
-   .addEventListener('change', function (event) {
-      const chosen = event.target.value;
-      const subset = chosen === 'all'
-         ? districts.features
-         : districts.features.filter(
-               f => f.properties.province === chosen
-            );
-      draw(subset);
-   });
+// Optional 3: the province drop-down and the name box filter together.
+function applyFilters() {
+   const chosen = document.getElementById('province').value;
+   const text = document.getElementById('search').value.trim().toLowerCase();
+   const subset = districts.features.filter(f =>
+      (chosen === 'all' || f.properties.province === chosen) &&
+      (text === '' || String(f.properties.district).toLowerCase().includes(text))
+   );
+   draw(subset);
+}
+
+document.getElementById('province').addEventListener('change', applyFilters);
+document.getElementById('search').addEventListener('input', applyFilters);
 
 const legend = L.control({ position: 'bottomright' });
 

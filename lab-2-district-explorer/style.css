@@ -22,8 +22,13 @@ h1 {
 #panel {
    padding: 10px 24px 14px;
    display: flex;
+   flex-wrap: wrap;
    align-items: center;
-   gap: 12px;
+   gap: 8px 12px;
+}
+
+#search {
+   width: 170px;
 }
 
 #count {
