@@ -329,9 +329,6 @@ Serving the folder over HTTP, as Live Server does at `127.0.0.1:5500`, makes it 
 
 ## Additional Task – optional exercises from the manual
 
-The manual ends with five optional exercises. All five are in the live page. The checkpoint screenshots above were
-taken before they were added, so they show the core lab only; the screenshots for the extras are here. The checks
-were run in the browser against the finished page.
 
 ### 1. Second basemap and a layer control
 
