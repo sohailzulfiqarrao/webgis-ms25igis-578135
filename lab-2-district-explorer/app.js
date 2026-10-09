@@ -90,6 +90,17 @@ function draw(features) {
                'Population: ' + show(p.pop_2023) + '<br>' +
                'Area: ' + show(p.area_km2) + ' km<sup>2</sup>'
             );
+
+            // Optional 2: thicken the outline while the pointer is over a district.
+            featureLayer.on({
+               mouseover: function () {
+                  featureLayer.setStyle({ weight: 3, color: '#23373b' });
+                  featureLayer.bringToFront();
+               },
+               mouseout: function () {
+                  layer.resetStyle(featureLayer);
+               }
+            });
          }
       }
    ).addTo(map);
