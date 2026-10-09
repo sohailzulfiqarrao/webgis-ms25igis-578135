@@ -15,15 +15,15 @@ Starting with Lab 01, this repository demonstrates the fundamental concepts of w
 ## How to Run Locally
 To view and interact with the map on your local machine, avoid opening the `index.html` file directly in your browser, as local file security restrictions will block external data loading.
 
-1. Clone this repository to your local machine (recommended directory: `C:\webgis`), then open the `lab-1` folder.
+1. Clone this repository to your local machine (recommended directory: `C:\webgis`), then open the `lab-1-First-Web-Map` folder.
 2. Open the project folder in **Visual Studio Code**.
 3. Install the **Live Server** extension by Ritwick Dey.
 4. Right-click on `index.html` and select **Open with Live Server**.
-5. The application will open in your default browser at `http://127.0.0.1:5500/index.html` (or `http://127.0.0.1:5500/lab-1/index.html` if you opened the whole repository folder).
+5. The application will open in your default browser at `http://127.0.0.1:5500/index.html` (or `http://127.0.0.1:5500/lab-1-First-Web-Map/index.html` if you opened the whole repository folder).
 
 ## Live Demo
 You can view the live, published version of this map via GitHub Pages:
-**[View Live Map](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-1/)**
+**[View Live Map](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-1-First-Web-Map/)**
 
 ---
 **Author:** Sohail Zulfiqar  

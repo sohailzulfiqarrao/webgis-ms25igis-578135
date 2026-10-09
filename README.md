@@ -10,7 +10,7 @@ Laboratory work for the Web GIS course, MS Remote Sensing and GIS, Institute of 
 
 | Lab | Folder | Live map | Report |
 |---|---|---|---|
-| 01 – First Web Map | [`lab-1/`](lab-1/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-1/) | [report](lab-1/reports/lab01-report.md) |
+| 01 – First Web Map | [`lab-1-First-Web-Map/`](lab-1-First-Web-Map/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-1-First-Web-Map/) | [report](lab-1-First-Web-Map/reports/lab01-report.md) |
 | 02 – District Explorer | [`lab-2-district-explorer/`](lab-2-district-explorer/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-2-district-explorer/) | [report](lab-2-district-explorer/report.md) |
 
 ## Layout
@@ -18,7 +18,7 @@ Laboratory work for the Web GIS course, MS Remote Sensing and GIS, Institute of 
 ```
 index.html                  landing page listing every lab
 assets/site.css             its stylesheet
-lab-1/                      Lab 01: Leaflet map of Islamabad
+lab-1-First-Web-Map/        Lab 01: Leaflet map of Islamabad
 lab-2-district-explorer/    Lab 02: districts of Pakistan from a shapefile
     index.html  style.css  app.js  data/districts.geojson  report.md
 ```
@@ -35,7 +35,7 @@ Serve the repository folder instead, for example with the VS Code **Live Server*
 python -m http.server 5500
 ```
 
-Then open `/`, `/lab-1/` or `/lab-2-district-explorer/`.
+Then open `/`, `/lab-1-First-Web-Map/` or `/lab-2-district-explorer/`.
 
 ---
 **Author:** Sohail Zulfiqar, MS GIS & Remote Sensing
