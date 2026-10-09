@@ -2,7 +2,8 @@ body {
    font-family: system-ui, sans-serif;
    margin: 0;
    color: #23373b;
-   background: #dbe6ef;
+   /* the tinted page background shows around the control bar and the map card */
+   background: linear-gradient(160deg, #c3d6e6 0%, #e6eef5 100%) fixed;
    /* the page is one column: header, panel, then a map that takes the rest of the window */
    display: flex;
    flex-direction: column;
@@ -50,9 +51,12 @@ h1 {
    justify-content: center;
    align-items: center;
    gap: 8px 12px;
+   margin: 14px 16px 0;
    padding: 10px 24px;
    background: #fff;
-   border-bottom: 1px solid #b9cad8;
+   border: 1px solid #b9cad8;
+   border-radius: 10px;
+   box-shadow: 0 2px 8px rgba(10, 47, 79, .12);
 }
 
 .field {
@@ -97,7 +101,10 @@ select:focus-visible, input:focus-visible {
 #map {
    flex: 1 1 auto;
    min-height: 320px;
-   width: 100%;
+   margin: 14px 16px 16px;
+   border: 1px solid #b9cad8;
+   border-radius: 10px;
+   box-shadow: 0 2px 10px rgba(10, 47, 79, .18);
 }
 
 .legend {
@@ -136,6 +143,12 @@ select:focus-visible, input:focus-visible {
 
    h1 {
       font-size: 24px;
+   }
+
+   #panel,
+   #map {
+      margin-left: 10px;
+      margin-right: 10px;
    }
 
    #map {
