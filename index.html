@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Web GIS Labs, Fall 2026</title>
+   <meta name="description" content="Laboratory work for Web GIS, Fall 2026, MS Remote Sensing and GIS, NUST IGIS.">
+   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230f6e78'/%3E%3Cpath d='M16 7c-3.9 0-7 3-7 6.800 0 5 7 11.200 7 11.200s7-6.200 7-11.200C23 10 19.900 7 16 7z' fill='%23fff'/%3E%3Ccircle cx='16' cy='13.800' r='2.600' fill='%230f6e78'/%3E%3C/svg%3E">
+   <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+   <div class="wrap">
+      <a class="brand" href="./">Web GIS Labs</a>
+      <nav aria-label="Main">
+         <a href="#labs">Labs</a>
+         <a href="#about">About</a>
+         <a href="https://shahidnawazkhan.github.io/Fall2026WebGIS/">Course site</a>
+         <a href="https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135">GitHub</a>
+      </nav>
+   </div>
+</header>
+
+<main>
+   <div class="wrap">
+
+      <div class="hero">
+         <p class="eyebrow">Fall 2026 &middot; MS Remote Sensing and GIS</p>
+         <h1>Web GIS laboratory work</h1>
+         <p class="lede">
+            Web maps built from scratch for the Web GIS course: from a first Leaflet page to a
+            district map made from a shapefile, each one published on GitHub Pages.
+         </p>
+         <p class="byline">
+            <strong>Sohail Zulfiqar</strong> &middot; 578135 &middot;
+            Institute of Geographical Information Systems, NUST, Islamabad
+         </p>
+      </div>
+
+      <section id="labs" aria-labelledby="labs-title">
+         <h2 id="labs-title">Labs</h2>
+         <p class="section-note">Each lab has its own live map and a written report.</p>
+
+         <div class="cards">
+
+            <article class="card">
+               <p class="meta">Lab 01 &middot; 2 hours</p>
+               <h3>Your First Web Map</h3>
+               <p>
+                  A first web page with a Leaflet map of Islamabad and a marker on the NUST H-12 campus,
+                  published with GitHub Pages.
+               </p>
+               <ul class="tags" aria-label="Topics">
+                  <li>HTML</li><li>CSS</li><li>Leaflet</li><li>Git</li><li>GitHub Pages</li>
+               </ul>
+               <div class="actions">
+                  <a class="button" href="lab-1/">Open map</a>
+                  <a href="https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135/blob/main/lab-1/reports/lab01-report.md">Report</a>
+                  <a href="https://shahidnawazkhan.github.io/Fall2026WebGIS/Lab1/">Lab handout</a>
+               </div>
+            </article>
+
+            <article class="card">
+               <p class="meta">Lab 02 &middot; 3 hours</p>
+               <h3>District Explorer</h3>
+               <p>
+                  A web map of Pakistan's 160 districts, built from a shapefile: converted to GeoJSON,
+                  shaded by 2023 census population, with popups, a legend and a province filter.
+               </p>
+               <ul class="tags" aria-label="Topics">
+                  <li>QGIS</li><li>GeoJSON</li><li>Leaflet</li><li>JavaScript</li><li>GitHub Pages</li>
+               </ul>
+               <div class="actions">
+                  <a class="button" href="lab-2-district-explorer/">Open map</a>
+                  <a href="https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135/blob/main/lab-2-district-explorer/report.md">Report</a>
+                  <a href="https://shahidnawazkhan.github.io/Fall2026WebGIS/Lab2/">Lab handout</a>
+               </div>
+            </article>
+
+            <article class="card upcoming">
+               <p>More labs will appear here during the semester.</p>
+            </article>
+
+         </div>
+      </section>
+
+      <section id="about" aria-labelledby="about-title">
+         <h2 id="about-title">How this site is organised</h2>
+         <p class="section-note">One repository for the whole course, one folder per lab.</p>
+         <ul class="facts">
+            <li>
+               <strong>A folder for every lab</strong>
+               <span>Each lab keeps its own page, data and report, so later labs never overwrite earlier ones.</span>
+            </li>
+            <li>
+               <strong>Static and public</strong>
+               <span>Plain HTML, CSS and JavaScript with Leaflet, served by GitHub Pages with no build step.</span>
+            </li>
+            <li>
+               <strong>Reports on GitHub</strong>
+               <span>Each report holds the checkpoints, measurements and answers for its lab.</span>
+            </li>
+         </ul>
+      </section>
+
+   </div>
+</main>
+
+<footer>
+   <div class="wrap">
+      <p>Web GIS &middot; Fall 2026 &middot; Institute of Geographical Information Systems, School of Civil and Environmental Engineering, NUST.</p>
+      <p>Course site: <a href="https://shahidnawazkhan.github.io/Fall2026WebGIS/">shahidnawazkhan.github.io/Fall2026WebGIS</a></p>
+   </div>
+</footer>
+
+</body>
+</html>
