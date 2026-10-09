@@ -13,89 +13,39 @@
 </head>
 <body>
 
-<a class="skip" href="#labs">Skip to the labs</a>
-
-<header class="hero">
-   <div class="wrap top">
-      <a class="brand" href="./">
-         <img src="assets/nust-logo.jpg" alt="NUST logo: Defining futures">
-         <span>Web GIS &middot; Fall 2026</span>
-      </a>
-      <nav aria-label="Main">
-         <a href="#labs">Labs</a>
-         <a href="#toolkit">Toolkit</a>
-         <a href="https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135">Source on GitHub</a>
-      </nav>
-   </div>
-
-   <div class="wrap hero-inner">
-      <div>
-         <p class="eyebrow">MS Remote Sensing and GIS &middot; Fall 2026</p>
-         <h1>Web GIS lab portfolio</h1>
-         <p class="lede">
-            Interactive maps built from scratch, from a first Leaflet page to a district map made out of a
-            shapefile. Every lab is a live page with a written report.
-         </p>
-         <p class="who">
-            <strong>Sohail Zulfiqar</strong> &middot; Reg. 578135<br>
-            Institute of Geographical Information Systems, NUST, Islamabad
-         </p>
-         <ul class="stats" aria-label="At a glance">
-            <li><b>2</b><span>live maps</span></li>
-            <li><b>160</b><span>districts mapped</span></li>
-            <li><b>92%</b><span>smaller GeoJSON, 11.2 MB to 0.93 MB</span></li>
-         </ul>
+<header class="masthead">
+   <div class="wrap">
+      <img class="logo" src="assets/nust-logo.jpg" alt="NUST logo: Defining futures">
+      <div class="titles">
+         <h1>Web GIS Laboratory</h1>
+         <p class="sub">Fall 2026 &middot; MS Remote Sensing and GIS</p>
       </div>
-
-      <figure class="shot-frame">
-         <div class="bar" aria-hidden="true"><i></i><i></i><i></i><span>lab-2-district-explorer</span></div>
-         <img src="assets/lab-2-map.jpg" width="1100" height="700"
-              alt="District Explorer: the districts of Pakistan shaded from pale to dark orange by population, with a legend">
-      </figure>
    </div>
 </header>
 
 <main>
-   <section id="labs" class="wrap" aria-labelledby="labs-title">
-      <h2 id="labs-title">Labs</h2>
-      <p class="section-note">Newest first. Each lab has its own live map and a written report.</p>
+   <section class="wrap profile" aria-label="Student">
+      <dl>
+         <div class="item"><dt>Student</dt><dd>Sohail Zulfiqar</dd></div>
+         <div class="item"><dt>Registration ID</dt><dd>578135</dd></div>
+         <div class="item"><dt>Program</dt><dd>MS GIS &amp; RS, 2025</dd></div>
+         <div class="item"><dt>Instructor</dt><dd>Dr. Shahid Nawaz Khan</dd></div>
+      </dl>
+   </section>
 
-      <article class="lab">
-         <figure class="shot-frame">
-            <div class="bar" aria-hidden="true"><i></i><i></i><i></i><span>lab-2-district-explorer</span></div>
-            <img src="assets/lab-2-map.jpg" width="1100" height="700" loading="lazy"
-                 alt="District Explorer with the districts of Pakistan shaded by population">
-         </figure>
-         <div>
-            <p class="meta"><b>Lab 02</b> &middot; 3 hours</p>
-            <h3>District Explorer</h3>
-            <p>
-               Pakistan's 160 districts, built from a shapefile: converted to GeoJSON with measured file sizes,
-               shaded by 2023 census population, with popups, a legend and a province filter.
-            </p>
-            <p class="extras">
-               Plus five extras: a satellite basemap, hover highlight, name search, a province list sorted by
-               district count, and quantile classes.
-            </p>
-            <ul class="tags" aria-label="Topics">
-               <li>QGIS</li><li>GeoJSON</li><li>Leaflet</li><li>JavaScript</li><li>GitHub Pages</li>
-            </ul>
-            <div class="actions">
-               <a class="button" href="lab-2-district-explorer/">Open the map</a>
-               <a href="https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135/blob/main/lab-2-district-explorer/report.md">Read the report</a>
-               <a href="https://shahidnawazkhan.github.io/Fall2026WebGIS/Lab2/">Lab handout</a>
-            </div>
-         </div>
-      </article>
+   <div class="wrap section-head">
+      <h2 id="labs-title">Laboratory work</h2>
+      <p class="section-note">Each lab has a live map and a written report.</p>
+   </div>
 
-      <article class="lab">
-         <figure class="shot-frame">
-            <div class="bar" aria-hidden="true"><i></i><i></i><i></i><span>lab-1-First-Web-Map</span></div>
-            <img src="assets/lab-1-map.jpg" width="1100" height="700" loading="lazy"
-                 alt="First Web Map: a Leaflet map of Islamabad with markers, popups and circles">
-         </figure>
-         <div>
-            <p class="meta"><b>Lab 01</b> &middot; 2 hours</p>
+   <section class="wrap cards" aria-labelledby="labs-title">
+
+      <article class="card">
+         <a class="thumb" href="lab-1-First-Web-Map/" tabindex="-1" aria-hidden="true">
+            <img src="assets/lab-1-map.jpg" width="1100" height="700" loading="lazy" alt="">
+         </a>
+         <div class="body">
+            <p class="meta"><span class="badge">Lab 01</span> 2 hours</p>
             <h3>First Web Map</h3>
             <p>
                A first web page with a Leaflet map of Islamabad: markers, popups and circles around the NUST
@@ -105,35 +55,53 @@
                <li>HTML</li><li>CSS</li><li>Leaflet</li><li>Git</li><li>GitHub Pages</li>
             </ul>
             <div class="actions">
-               <a class="button" href="lab-1-First-Web-Map/">Open the map</a>
-               <a href="https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135/blob/main/lab-1-First-Web-Map/reports/lab01-report.md">Read the report</a>
+               <a class="button" href="lab-1-First-Web-Map/">Open map</a>
+               <a href="https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135/blob/main/lab-1-First-Web-Map/reports/lab01-report.md">Report</a>
                <a href="https://shahidnawazkhan.github.io/Fall2026WebGIS/Lab1/">Lab handout</a>
             </div>
          </div>
       </article>
 
-      <div class="next">The next lab will appear here.</div>
-   </section>
+      <article class="card">
+         <a class="thumb" href="lab-2-district-explorer/" tabindex="-1" aria-hidden="true">
+            <img src="assets/lab-2-map.jpg" width="1100" height="700" loading="lazy" alt="">
+         </a>
+         <div class="body">
+            <p class="meta"><span class="badge">Lab 02</span> 3 hours</p>
+            <h3>District Explorer</h3>
+            <p>
+               Pakistan's 160 districts, built from a shapefile: converted to GeoJSON, shaded by 2023 census
+               population, with popups, a legend and a province filter.
+            </p>
+            <p class="extras">
+               Extras: satellite basemap, hover highlight, name search, sorted province list and quantile classes.
+            </p>
+            <ul class="tags" aria-label="Topics">
+               <li>QGIS</li><li>GeoJSON</li><li>Leaflet</li><li>JavaScript</li><li>GitHub Pages</li>
+            </ul>
+            <div class="actions">
+               <a class="button" href="lab-2-district-explorer/">Open map</a>
+               <a href="https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135/blob/main/lab-2-district-explorer/report.md">Report</a>
+               <a href="https://shahidnawazkhan.github.io/Fall2026WebGIS/Lab2/">Lab handout</a>
+            </div>
+         </div>
+      </article>
 
-   <section id="toolkit" class="wrap" aria-labelledby="toolkit-title">
-      <h2 id="toolkit-title">Toolkit</h2>
-      <p class="section-note">What these labs are built with. No build step, no framework.</p>
-      <ul class="toolkit">
-         <li>HTML5</li><li>CSS3</li><li>JavaScript</li><li>Leaflet 1.9</li><li>GeoJSON</li>
-         <li>QGIS</li><li>Git</li><li>GitHub Pages</li>
-      </ul>
+      <article class="card upcoming" aria-label="Upcoming lab">
+         <div>
+            <strong>More labs to come</strong>
+            New labs will be added here during the semester.
+         </div>
+      </article>
+
    </section>
 </main>
 
 <footer>
    <div class="wrap">
-      <img src="assets/nust-logo.jpg" alt="NUST logo">
-      <div class="about">
-         <p><strong>Web GIS &middot; Fall 2026</strong></p>
-         <p>Institute of Geographical Information Systems, School of Civil and Environmental Engineering,
-            National University of Sciences and Technology, Islamabad.</p>
-      </div>
-      <p><a href="https://shahidnawazkhan.github.io/Fall2026WebGIS/">Course page</a> &middot;
+      <p>Web GIS &middot; Fall 2026 &middot; Institute of Geographical Information Systems, School of Civil and
+         Environmental Engineering, National University of Sciences and Technology, Islamabad.</p>
+      <p style="flex: 0 1 auto"><a href="https://shahidnawazkhan.github.io/Fall2026WebGIS/">Course page</a> &middot;
          <a href="https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135">Repository</a></p>
    </div>
 </footer>
