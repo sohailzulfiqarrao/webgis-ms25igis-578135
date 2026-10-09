@@ -28,6 +28,7 @@ async function loadData() {
    console.log('First Feature:', districts.features[0]);
    console.log('distinct Provinces:', [...new Set(districts.features.map(f => f.properties.province))].sort());
 
+   fillProvinceList();
    draw(districts.features);
 }
 loadData();
@@ -86,6 +87,20 @@ function draw(features) {
 
    document.getElementById('count').textContent =
       features.length + ' districts';
+}
+
+// Fill the drop-down from the data rather than typing the names by hand.
+function fillProvinceList() {
+   const select = document.getElementById('province');
+   const provinces = [...new Set(
+      districts.features.map(f => f.properties.province)
+   )].sort();
+   for (const name of provinces) {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+   }
 }
 
 const legend = L.control({ position: 'bottomright' });
