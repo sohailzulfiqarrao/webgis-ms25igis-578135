@@ -1,4 +1,4 @@
-# Lab 01: Your First Web Map
+# Lab 01: First Web Map
 **Web GIS Course at IGIS, NUST**
 
 *Sohail Zulfiqar - 578135*

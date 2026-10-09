@@ -10,7 +10,7 @@ Laboratory work for the Web GIS course, MS Remote Sensing and GIS, Institute of 
 
 | Lab | Folder | Live map | Report |
 |---|---|---|---|
-| 01 – Your First Web Map | [`lab-1/`](lab-1/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-1/) | [report](lab-1/reports/lab01-report.md) |
+| 01 – First Web Map | [`lab-1/`](lab-1/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-1/) | [report](lab-1/reports/lab01-report.md) |
 | 02 – District Explorer | [`lab-2-district-explorer/`](lab-2-district-explorer/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-2-district-explorer/) | [report](lab-2-district-explorer/report.md) |
 
 ## Layout
