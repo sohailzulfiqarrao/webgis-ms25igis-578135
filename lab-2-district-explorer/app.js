@@ -67,7 +67,16 @@ function draw(features) {
    layer = L.geoJSON(
       { type: 'FeatureCollection', features: features },
       {
-         style: styleFor
+         style: styleFor,
+         onEachFeature: function (feature, featureLayer) {
+            const p = feature.properties;
+            featureLayer.bindPopup(
+               '<strong>' + show(p.district) + '</strong><br>' +
+               'Province: ' + show(p.province) + '<br>' +
+               'Population: ' + show(p.pop_2023) + '<br>' +
+               'Area: ' + show(p.area_km2) + ' km<sup>2</sup>'
+            );
+         }
       }
    ).addTo(map);
 
