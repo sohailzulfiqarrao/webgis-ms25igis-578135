@@ -32,6 +32,33 @@ async function loadData() {
 }
 loadData();
 
+// Readable text for any attribute value; missing values become a placeholder.
+function show(value) {
+   if (value === null || value === undefined || value === '') {
+      return 'not recorded';
+   }
+   return typeof value === 'number' ? value.toLocaleString() : value;
+}
+
+// Manual classification: five classes, four break values.
+function colourFor(population) {
+   if (population === null || population === undefined) return '#c9cfd1';
+   if (population > 3000000) return '#7f2704';
+   if (population > 1500000) return '#d94801';
+   if (population > 750000) return '#f16913';
+   if (population > 300000) return '#fd8d3c';
+   return '#fdd0a2';
+}
+
+function styleFor(feature) {
+   return {
+      color: '#ffffff',
+      weight: 1,
+      fillColor: colourFor(feature.properties.pop_2023),
+      fillOpacity: 0.8
+   };
+}
+
 function draw(features) {
    if (layer) {
       map.removeLayer(layer);
@@ -40,12 +67,7 @@ function draw(features) {
    layer = L.geoJSON(
       { type: 'FeatureCollection', features: features },
       {
-         style: {
-            color: '#ffffff',
-            weight: 1,
-            fillColor: '#8c9ea3',
-            fillOpacity: 0.75
-         }
+         style: styleFor
       }
    ).addTo(map);
 
