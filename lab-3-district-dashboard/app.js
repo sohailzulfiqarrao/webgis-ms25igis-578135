@@ -73,6 +73,9 @@ function styleFor(feature) {
 const districtGroup = L.featureGroup().addTo(map);
 layerControl.addOverlay(districtGroup, 'Population density');
 
+const circleGroup = L.featureGroup().addTo(map);
+layerControl.addOverlay(circleGroup, 'Population');
+
 let allDistricts = null;
 let allPoints = null;
 let districts = null;
@@ -83,6 +86,7 @@ function draw(province) {
    };
 
    districtGroup.clearLayers();
+   circleGroup.clearLayers();
 
    districts = L.geoJSON(allDistricts, {
       filter: keep,
@@ -90,6 +94,11 @@ function draw(province) {
       onEachFeature: bindDistrict
    });
    districtGroup.addLayer(districts);
+
+   circleGroup.addLayer(L.geoJSON(allPoints, {
+      filter: function (f) { return keep(f) && hasPopulation(f); },
+      pointToLayer: circleFor
+   }));
 
    const n = districts.getLayers().length;
    if (n > 0) {
