@@ -128,7 +128,8 @@ h2 { margin: 0 0 4px; font-size: 24px; }
 /* each lab card takes the accent colour of its own page */
 .card.lab1 { --accent: #00497a; }
 .card.lab2 { --accent: #14615e; }
-.card.lab1, .card.lab2 { border-top: 4px solid var(--accent); }
+.card.lab3 { --accent: #3730a3; }
+.card.lab1, .card.lab2, .card.lab3 { border-top: 4px solid var(--accent); }
 
 .thumb { display: block; border-bottom: 1px solid var(--line); background: var(--chip); }
 .thumb img { display: block; width: 100%; height: auto; aspect-ratio: 11 / 7; object-fit: cover; }
@@ -226,5 +227,6 @@ footer a { color: #fff; }
 @media (prefers-color-scheme: dark) {
    .card.lab1 { --accent: #4aa3dd; }
    .card.lab2 { --accent: #3fb3ab; }
+   .card.lab3 { --accent: #8b8cf5; }
    .badge { color: #06222b; }
 }
