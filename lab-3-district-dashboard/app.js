@@ -143,3 +143,33 @@ legend.onAdd = function () {
 };
 
 legend.addTo(map);
+
+const info = L.control({ position: 'topright' });
+
+info.onAdd = function () {
+   this._div = L.DomUtil.create('div', 'info');
+   L.DomEvent.disableClickPropagation(this._div);
+   L.DomEvent.disableScrollPropagation(this._div);
+   this.update();
+   return this._div;
+};
+
+info.update = function (p) {
+   const zoom = '<div class="muted">Zoom level ' + map.getZoom() + '</div>';
+   if (!p) {
+      this._div.innerHTML = '<h4>District</h4>' +
+         '<div class="muted">Hover over a district</div>' + zoom;
+      return;
+   }
+   const d = densityOf(p);
+   this._div.innerHTML =
+      '<h4>' + p.district + '</h4>' +
+      p.province + '<br>' +
+      'Population: ' + show(p.pop_2023) + '<br>' +
+      'Area: ' + show(p.area_km2) + ' km<sup>2</sup><br>' +
+      'Density: ' + (d === null ? 'not recorded'
+                                : Math.round(d).toLocaleString() + ' per km<sup>2</sup>') +
+      zoom;
+};
+
+info.addTo(map);
