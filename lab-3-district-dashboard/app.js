@@ -120,3 +120,26 @@ async function loadData() {
 }
 
 loadData();
+
+const legend = L.control({ position: 'bottomright' });
+
+legend.onAdd = function () {
+   const div = L.DomUtil.create('div', 'legend');
+   const breaks = [0, 50, 150, 400, 1000];
+   const labels = ['under 50', '50 to 150', '150 to 400',
+                   '400 to 1,000', 'over 1,000'];
+
+   div.innerHTML = '<strong>People per km<sup>2</sup></strong><br>';
+   for (let i = 0; i < breaks.length; i++) {
+      div.innerHTML +=
+         '<i style="background:' + colourFor(breaks[i] + 1) + '"></i> ' +
+         labels[i] + '<br>';
+   }
+   div.innerHTML +=
+      '<i style="background:' + colourFor(null) + '"></i> no census data';
+
+   L.DomEvent.disableClickPropagation(div);
+   return div;
+};
+
+legend.addTo(map);
