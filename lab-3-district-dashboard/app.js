@@ -279,3 +279,7 @@ document.getElementById('coords')
          map.off('click', showCoordinates);
       }
    });
+
+map.on('zoomend', function () {
+   info.update();
+});
