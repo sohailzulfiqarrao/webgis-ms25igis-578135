@@ -126,6 +126,7 @@ async function loadData() {
       document.getElementById('count').textContent = 'data failed to load';
       return;
    }
+   fillProvinceList();
    draw('all');
 }
 
@@ -283,3 +284,21 @@ document.getElementById('coords')
 map.on('zoomend', function () {
    info.update();
 });
+
+function fillProvinceList() {
+   const select = document.getElementById('province');
+   const provinces = [...new Set(
+      allDistricts.features.map(f => f.properties.province)
+   )].sort();
+   for (const name of provinces) {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+   }
+}
+
+document.getElementById('province')
+   .addEventListener('change', function (event) {
+      draw(event.target.value);
+   });
