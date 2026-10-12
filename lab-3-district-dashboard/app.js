@@ -69,3 +69,6 @@ function styleFor(feature) {
       fillOpacity: 0.8
    };
 }
+
+const districtGroup = L.featureGroup().addTo(map);
+layerControl.addOverlay(districtGroup, 'Population density');
