@@ -198,3 +198,6 @@ function bindDistrict(feature, layer) {
       click: zoomToDistrict
    });
 }
+
+map.createPane('symbols');
+map.getPane('symbols').style.zIndex = 450;
