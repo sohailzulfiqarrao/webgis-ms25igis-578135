@@ -13,6 +13,7 @@ Laboratory work for the Web GIS course, MS Remote Sensing and GIS, Institute of 
 |---|---|---|---|
 | 01 – First Web Map | [`lab-1-First-Web-Map/`](lab-1-First-Web-Map/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-1-First-Web-Map/) | [report](lab-1-First-Web-Map/reports/lab01-report.md) |
 | 02 – District Explorer | [`lab-2-district-explorer/`](lab-2-district-explorer/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-2-district-explorer/) | [report](lab-2-district-explorer/report.md) |
+| 03 – District Dashboard | [`lab-3-district-dashboard/`](lab-3-district-dashboard/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-3-district-dashboard/) | [report](lab-3-district-dashboard/report.md) |
 
 ## Layout
 
@@ -21,7 +22,8 @@ index.html                  landing page listing every lab
 assets/site.css             its stylesheet
 lab-1-First-Web-Map/        Lab 01: Leaflet map of Islamabad
 lab-2-district-explorer/    Lab 02: districts of Pakistan from a shapefile
-    index.html  style.css  app.js  data/districts.geojson  report.md
+lab-3-district-dashboard/   Lab 03: layers, controls and interaction
+    each of the last two: index.html  style.css  app.js  data/  images/  report.md
 ```
 
 Each new lab gets its own folder and a new card on the landing page.
