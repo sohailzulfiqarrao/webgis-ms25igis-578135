@@ -72,3 +72,51 @@ function styleFor(feature) {
 
 const districtGroup = L.featureGroup().addTo(map);
 layerControl.addOverlay(districtGroup, 'Population density');
+
+let allDistricts = null;
+let allPoints = null;
+let districts = null;
+
+function draw(province) {
+   const keep = function (feature) {
+      return province === 'all' || feature.properties.province === province;
+   };
+
+   districtGroup.clearLayers();
+
+   districts = L.geoJSON(allDistricts, {
+      filter: keep,
+      style: styleFor
+   });
+   districtGroup.addLayer(districts);
+
+   const n = districts.getLayers().length;
+   if (n > 0) {
+      map.fitBounds(districts.getBounds());
+   }
+   document.getElementById('count').textContent = n + ' districts';
+}
+
+async function loadJSON(path) {
+   const response = await fetch(path);
+   if (!response.ok) {
+      throw new Error(path + ': status ' + response.status);
+   }
+   return response.json();
+}
+
+async function loadData() {
+   try {
+      [allDistricts, allPoints] = await Promise.all([
+         loadJSON('data/districts.geojson'),
+         loadJSON('data/district_points.geojson')
+      ]);
+   } catch (err) {
+      console.error('Could not load the data.', err);
+      document.getElementById('count').textContent = 'data failed to load';
+      return;
+   }
+   draw('all');
+}
+
+loadData();
