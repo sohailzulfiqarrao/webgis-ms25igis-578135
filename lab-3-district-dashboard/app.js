@@ -254,3 +254,12 @@ function circleFor(feature, latlng) {
 function hasPopulation(feature) {
    return feature.properties.pop_2023 !== null;
 }
+
+const nust = [33.6423, 72.9906];
+const nustGroup = L.featureGroup([
+   L.circle(nust, { radius: 25000, color: '#0f766e', weight: 2,
+                    fillOpacity: 0.08 }),
+   L.circleMarker(nust, { radius: 6, color: '#0f766e',
+                          fillColor: '#0f766e', fillOpacity: 1 })
+]).bindTooltip('NUST H-12: a 25 km circle and a 6 pixel circleMarker');
+layerControl.addOverlay(nustGroup, 'NUST, 25 km');
