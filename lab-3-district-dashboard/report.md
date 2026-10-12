@@ -102,3 +102,27 @@ Polygons and circles would share a pane and be stacked in the order they were ad
 - Repository: https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135 (this lab is in `lab-3-district-dashboard/`)
 - Live page: https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-3-district-dashboard/
 - Lab 2 still works at its own address: https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-2-district-explorer/
+
+---
+
+## Additional Task – optional exercises from the manual
+
+### 1. Marker clusters on a separate overlay
+Leaflet.markercluster draws the 160 points as clustered markers on a "Points (clustered)" overlay, which is off by default and rebuilt with the province filter. **Check:** at zoom 5 it shows 5 clusters (sizes 73, 49, 19, 13, 6 and so on), and at zoom 12 around Lahore they split into single markers.
+
+![Additional task 1](images/additional-1-clusters.jpg)
+
+### 2. Density labels above zoom 8
+`zoomend` adds a permanent tooltip with the density at each district's point on surface above zoom 8 and removes them at zoom 8 or below. **Check:** 0 labels at zoom 8 and 135 at zoom 9, one for each district with census data (Lahore reads 7,517).
+
+![Additional task 2](images/additional-2-density-labels.jpg)
+
+### 3. Remember the view
+`moveend` saves the centre and zoom in `localStorage`, and the next visit restores them after the first draw. **Check:** after setting the view to zoom 8 near Punjab and reloading, the map came back at zoom 8, centre 31.2, 72.4. With storage blocked the page still loads (160 districts, 0 errors), because every call is in a `try` block.
+
+![Additional task 3](images/additional-3-remembered-view.jpg)
+
+### 4. Quantile breaks
+`quantileBreaksOf` computes five equal-count classes from the 135 densities, and the Classes drop-down restyles the layer and rewrites the legend. The fixed breaks stay the default. **Check:** fixed breaks 50, 150, 400, 1000; quantile breaks 74, 275, 456, 869, which put 27, 27, 27, 27, 27 districts in the five classes; the choice survives a province change.
+
+![Additional task 4](images/additional-4-quantile-classes.jpg)
