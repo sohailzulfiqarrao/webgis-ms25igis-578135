@@ -86,7 +86,8 @@ function draw(province) {
 
    districts = L.geoJSON(allDistricts, {
       filter: keep,
-      style: styleFor
+      style: styleFor,
+      onEachFeature: bindDistrict
    });
    districtGroup.addLayer(districts);
 
@@ -173,3 +174,27 @@ info.update = function (p) {
 };
 
 info.addTo(map);
+
+function highlight(e) {
+   e.target.setStyle({ weight: 3, color: '#1a202c', fillOpacity: 0.95 });
+   e.target.bringToFront();
+   info.update(e.target.feature.properties);
+}
+
+function unhighlight(e) {
+   districts.resetStyle(e.target);
+   info.update();
+}
+
+function zoomToDistrict(e) {
+   map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
+}
+
+function bindDistrict(feature, layer) {
+   layer.bindTooltip(feature.properties.district, { sticky: true });
+   layer.on({
+      mouseover: highlight,
+      mouseout: unhighlight,
+      click: zoomToDistrict
+   });
+}
