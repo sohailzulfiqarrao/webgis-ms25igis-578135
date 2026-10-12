@@ -39,3 +39,33 @@ const layerControl = L.control.layers(
 ).addTo(map);
 
 L.control.scale({ imperial: false }).addTo(map);
+
+function show(value) {
+   if (value === null || value === undefined || value === '') {
+      return 'not recorded';
+   }
+   return typeof value === 'number' ? value.toLocaleString() : value;
+}
+
+function densityOf(p) {
+   if (p.pop_2023 === null || p.pop_2023 === undefined) return null;
+   return p.pop_2023 / p.area_km2;
+}
+
+function colourFor(density) {
+   if (density === null) return '#c9cfd1';
+   if (density > 1000) return '#08306b';
+   if (density > 400) return '#2171b5';
+   if (density > 150) return '#4292c6';
+   if (density > 50) return '#9ecae1';
+   return '#deebf7';
+}
+
+function styleFor(feature) {
+   return {
+      color: '#ffffff',
+      weight: 1,
+      fillColor: colourFor(densityOf(feature.properties)),
+      fillOpacity: 0.8
+   };
+}
