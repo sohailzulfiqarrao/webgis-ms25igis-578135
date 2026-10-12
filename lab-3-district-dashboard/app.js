@@ -148,6 +148,28 @@ legend.onAdd = function () {
    div.innerHTML +=
       '<i style="background:' + colourFor(null) + '"></i> no census data';
 
+   const sizes = [10000000, 4000000, 1000000];
+   const rMax = radiusFor(sizes[0]);
+   const pad = 6;
+   const base = pad + 2 * rMax;
+   let svg = '<svg width="' + (2 * rMax + 75) +
+             '" height="' + (base + 2) + '">';
+   for (const s of sizes) {
+      const r = radiusFor(s);
+      const top = base - 2 * r;
+      svg += '<circle cx="' + (rMax + 1) + '" cy="' + (base - r) +
+             '" r="' + r + '" fill="#f97316" fill-opacity=".2"' +
+             ' stroke="#7c2d12"/>' +
+             '<line x1="' + (rMax + 1) + '" y1="' + top +
+             '" x2="' + (2 * rMax + 14) + '" y2="' + top +
+             '" stroke="#7c2d12" stroke-width=".6"/>' +
+             '<text x="' + (2 * rMax + 17) + '" y="' + (top + 3.5) +
+             '" font-size="10">' + (s / 1000000) + ' million</text>';
+   }
+   svg += '</svg>';
+   div.innerHTML +=
+      '<div class="circles"><strong>Population</strong>' + svg + '</div>';
+
    L.DomEvent.disableClickPropagation(div);
    return div;
 };
