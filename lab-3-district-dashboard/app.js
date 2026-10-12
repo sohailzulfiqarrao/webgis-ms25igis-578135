@@ -55,13 +55,15 @@ function densityOf(p) {
    return p.pop_2023 / p.area_km2;
 }
 
+// Optional 4: five colours and four break values; the breaks are either fixed or quantiles
+const DENSITY_COLOURS = ['#deebf7', '#9ecae1', '#4292c6', '#2171b5', '#08306b'];
+const FIXED_BREAKS = [50, 150, 400, 1000];
+let breaks = FIXED_BREAKS;
+let quantileBreaksList = [];
+
 function colourFor(density) {
    if (density === null) return '#c9cfd1';
-   if (density > 1000) return '#08306b';
-   if (density > 400) return '#2171b5';
-   if (density > 150) return '#4292c6';
-   if (density > 50) return '#9ecae1';
-   return '#deebf7';
+   return DENSITY_COLOURS[breaks.filter(b => density > b).length];
 }
 
 function styleFor(feature) {
@@ -146,6 +148,8 @@ async function loadData() {
       return;
    }
    const view = savedView();
+   quantileBreaksList = quantileBreaksOf(
+      allDistricts.features.map(f => densityOf(f.properties)).filter(d => d !== null), 5);
    fillProvinceList();
    draw('all');
    if (view && view.center) {
@@ -157,16 +161,18 @@ loadData();
 
 const legend = L.control({ position: 'bottomright' });
 
-legend.onAdd = function () {
-   const div = L.DomUtil.create('div', 'legend');
-   const breaks = [0, 50, 150, 400, 1000];
-   const labels = ['under 50', '50 to 150', '150 to 400',
-                   '400 to 1,000', 'over 1,000'];
+function fillLegend(div) {
+   const fmt = n => Math.round(n).toLocaleString();
+   const labels = ['under ' + fmt(breaks[0])];
+   for (let i = 1; i < breaks.length; i++) {
+      labels.push(fmt(breaks[i - 1]) + ' to ' + fmt(breaks[i]));
+   }
+   labels.push('over ' + fmt(breaks[breaks.length - 1]));
 
    div.innerHTML = '<strong>People per km<sup>2</sup></strong><br>';
-   for (let i = 0; i < breaks.length; i++) {
+   for (let i = 0; i < DENSITY_COLOURS.length; i++) {
       div.innerHTML +=
-         '<i style="background:' + colourFor(breaks[i] + 1) + '"></i> ' +
+         '<i style="background:' + DENSITY_COLOURS[i] + '"></i> ' +
          labels[i] + '<br>';
    }
    div.innerHTML +=
@@ -193,7 +199,11 @@ legend.onAdd = function () {
    svg += '</svg>';
    div.innerHTML +=
       '<div class="circles"><strong>Population</strong>' + svg + '</div>';
+}
 
+legend.onAdd = function () {
+   const div = L.DomUtil.create('div', 'legend');
+   fillLegend(div);
    L.DomEvent.disableClickPropagation(div);
    return div;
 };
@@ -364,3 +374,25 @@ map.on('moveend', function () {
       // storage is blocked: carry on without it
    }
 });
+
+// Optional 4 (continued): quantile breaks computed from the data, and the legend rewritten to match
+function quantileBreaksOf(values, classes) {
+   const sorted = values.slice().sort((a, b) => a - b);
+   const result = [];
+   for (let i = 1; i < classes; i++) {
+      const position = (sorted.length - 1) * i / classes;
+      const low = Math.floor(position);
+      const high = Math.min(low + 1, sorted.length - 1);
+      result.push(Math.round(sorted[low] + (sorted[high] - sorted[low]) * (position - low)));
+   }
+   return result;
+}
+
+document.getElementById('classes')
+   .addEventListener('change', function (event) {
+      breaks = event.target.value === 'quantile' ? quantileBreaksList : FIXED_BREAKS;
+      if (districts) {
+         districts.setStyle(styleFor);
+      }
+      fillLegend(legend.getContainer());
+   });
