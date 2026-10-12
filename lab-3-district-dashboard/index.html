@@ -12,16 +12,21 @@
 <body>
 
 <header>
-   <h1>District Dashboard</h1>
-   <p class="subtitle">Population density and population of
-      Pakistan's districts, 2023 census</p>
+   <img class="logo" src="images/nust.jpg" alt="NUST logo: Defining futures">
+   <div class="titles">
+      <h1>District Dashboard</h1>
+      <p class="subtitle">Population density and population of
+         Pakistan's districts, 2023 census</p>
+   </div>
 </header>
 
 <div id="panel">
-   <label for="province">Province</label>
-   <select id="province">
-      <option value="all">All provinces</option>
-   </select>
+   <div class="field">
+      <label for="province">Province</label>
+      <select id="province">
+         <option value="all">All provinces</option>
+      </select>
+   </div>
    <span id="count">loading...</span>
 
    <label class="toggle">
