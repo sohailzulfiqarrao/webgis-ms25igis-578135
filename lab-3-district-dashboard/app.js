@@ -79,6 +79,10 @@ layerControl.addOverlay(districtGroup, 'Population density');
 const circleGroup = L.featureGroup().addTo(map);
 layerControl.addOverlay(circleGroup, 'Population');
 
+// Optional 1: the 160 points as clustered markers, on a separate overlay
+const clusterGroup = L.markerClusterGroup();
+layerControl.addOverlay(clusterGroup, 'Points (clustered)');
+
 let allDistricts = null;
 let allPoints = null;
 let districts = null;
@@ -102,6 +106,12 @@ function draw(province) {
    circleGroup.addLayer(L.geoJSON(allPoints, {
       filter: function (f) { return keep(f) && hasPopulation(f); },
       pointToLayer: circleFor
+   }));
+
+   clusterGroup.clearLayers();
+   clusterGroup.addLayer(L.geoJSON(allPoints, {
+      filter: keep,
+      onEachFeature: function (f, l) { l.bindTooltip(f.properties.district); }
    }));
 
    const n = districts.getLayers().length;
