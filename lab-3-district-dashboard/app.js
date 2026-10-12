@@ -201,3 +201,25 @@ function bindDistrict(feature, layer) {
 
 map.createPane('symbols');
 map.getPane('symbols').style.zIndex = 450;
+
+function radiusFor(population) {
+   return Math.sqrt(population) / 160;
+}
+
+function circleFor(feature, latlng) {
+   return L.circleMarker(latlng, {
+      pane: 'symbols',
+      radius: radiusFor(feature.properties.pop_2023),
+      color: '#7c2d12',
+      weight: 1,
+      fillColor: '#f97316',
+      fillOpacity: 0.7
+   }).bindTooltip(
+      feature.properties.district + ': ' +
+      feature.properties.pop_2023.toLocaleString()
+   );
+}
+
+function hasPopulation(feature) {
+   return feature.properties.pop_2023 !== null;
+}
