@@ -263,3 +263,19 @@ const nustGroup = L.featureGroup([
                           fillColor: '#0f766e', fillOpacity: 1 })
 ]).bindTooltip('NUST H-12: a 25 km circle and a 6 pixel circleMarker');
 layerControl.addOverlay(nustGroup, 'NUST, 25 km');
+
+function showCoordinates(e) {
+   L.popup()
+      .setLatLng(e.latlng)
+      .setContent(e.latlng.lat.toFixed(4) + ', ' + e.latlng.lng.toFixed(4))
+      .openOn(map);
+}
+
+document.getElementById('coords')
+   .addEventListener('change', function (event) {
+      if (event.target.checked) {
+         map.on('click', showCoordinates);
+      } else {
+         map.off('click', showCoordinates);
+      }
+   });
