@@ -92,6 +92,7 @@ function draw(province) {
    const keep = function (feature) {
       return province === 'all' || feature.properties.province === province;
    };
+   currentKeep = keep;
 
    districtGroup.clearLayers();
    circleGroup.clearLayers();
@@ -119,6 +120,7 @@ function draw(province) {
       map.fitBounds(districts.getBounds());
    }
    document.getElementById('count').textContent = n + ' districts';
+   updateLabels();
    console.log('draw(' + province + '): ' + n + ' districts in ' +
                (performance.now() - t0).toFixed(1) + ' ms, ' +
                (useCanvas ? 'canvas' : 'SVG'));
@@ -301,6 +303,26 @@ document.getElementById('coords')
 map.on('zoomend', function () {
    info.update();
 });
+
+// Optional 2: the density as a permanent label on each district above zoom 8
+const labelGroup = L.layerGroup().addTo(map);
+let currentKeep = null;
+
+function updateLabels() {
+   labelGroup.clearLayers();
+   if (!allPoints || !currentKeep || map.getZoom() <= 8) return;
+   allPoints.features.forEach(function (f) {
+      const d = densityOf(f.properties);
+      if (d === null || !currentKeep(f)) return;
+      labelGroup.addLayer(
+         L.tooltip({ permanent: true, direction: 'center', className: 'density-label' })
+            .setLatLng([f.geometry.coordinates[1], f.geometry.coordinates[0]])
+            .setContent(Math.round(d).toLocaleString())
+      );
+   });
+}
+
+map.on('zoomend', updateLabels);
 
 function fillProvinceList() {
    const select = document.getElementById('province');

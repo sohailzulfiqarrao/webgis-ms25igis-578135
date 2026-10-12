@@ -104,3 +104,15 @@ select:focus-visible, input:focus-visible {
    #panel, #map { margin-left: 10px; margin-right: 10px; }
    #map { flex: none; height: 70vh; }
 }
+
+/* optional 2: the density printed on each district above zoom 8 */
+.leaflet-tooltip.density-label {
+   padding: 0;
+   color: #08306b;
+   font-size: 11px;
+   font-weight: 700;
+   background: transparent;
+   border: 0;
+   box-shadow: none;
+   text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
+}
