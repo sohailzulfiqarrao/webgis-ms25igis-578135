@@ -1,10 +1,13 @@
+const useCanvas = new URLSearchParams(window.location.search).has('canvas');
+
 const map = L.map('map', {
    center: [30.3753, 69.3451],
    zoom: 5,
    minZoom: 5,
    maxZoom: 14,
    maxBounds: [[21.5, 58.5], [39.0, 80.5]],
-   maxBoundsViscosity: 1.0
+   maxBoundsViscosity: 1.0,
+   preferCanvas: useCanvas
 });
 
 const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -81,6 +84,7 @@ let allPoints = null;
 let districts = null;
 
 function draw(province) {
+   const t0 = performance.now();
    const keep = function (feature) {
       return province === 'all' || feature.properties.province === province;
    };
@@ -105,6 +109,9 @@ function draw(province) {
       map.fitBounds(districts.getBounds());
    }
    document.getElementById('count').textContent = n + ' districts';
+   console.log('draw(' + province + '): ' + n + ' districts in ' +
+               (performance.now() - t0).toFixed(1) + ' ms, ' +
+               (useCanvas ? 'canvas' : 'SVG'));
 }
 
 async function loadJSON(path) {
