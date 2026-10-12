@@ -145,8 +145,12 @@ async function loadData() {
       document.getElementById('count').textContent = 'data failed to load';
       return;
    }
+   const view = savedView();
    fillProvinceList();
    draw('all');
+   if (view && view.center) {
+      map.setView([view.center.lat, view.center.lng], view.zoom, { animate: false });
+   }
 }
 
 loadData();
@@ -341,3 +345,22 @@ document.getElementById('province')
    .addEventListener('change', function (event) {
       draw(event.target.value);
    });
+
+// Optional 3: remember where the user was looking, and go back there on the next visit
+const VIEW_KEY = 'lab3-view';
+
+function savedView() {
+   try {
+      return JSON.parse(localStorage.getItem(VIEW_KEY));
+   } catch (err) {
+      return null;
+   }
+}
+
+map.on('moveend', function () {
+   try {
+      localStorage.setItem(VIEW_KEY, JSON.stringify({ center: map.getCenter(), zoom: map.getZoom() }));
+   } catch (err) {
+      // storage is blocked: carry on without it
+   }
+});
