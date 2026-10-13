@@ -68,13 +68,9 @@ With Punjab selected (36 districts, 36 circles) I switched each overlay off and 
 | Can you inspect one district in Elements? | Yes, one `<path>` per district | No, all districts are pixels in one `<canvas>` |
 
 #### SVG --> Elements Tab --> Leaflet-Pane
-![Checkpoint 9: Elements tab, SVG mode (index.html)](images/checkpoint-9-svg.png)
-
 ![Checkpoint 9: leaflet-overlay-pane expanded in SVG mode: an svg, a g and one path per district](images/checkpoint-9-svg-pane.png)
 
 #### Canvas --> Elements Tab --> Leaflet-Pane
-![Checkpoint 9: Elements tab, canvas mode (index.html?canvas)](images/checkpoint-9-canvas.png)
-
 ![Checkpoint 9: leaflet-overlay-pane expanded in canvas mode: a single canvas](images/checkpoint-9-canvas-pane.png)
 
 
