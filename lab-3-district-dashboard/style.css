@@ -120,6 +120,26 @@ select:focus-visible, input:focus-visible {
 /* the legend scrolls instead of growing into the zoom buttons when the map is short */
 .legend { max-height: calc(100vh - 380px); overflow-y: auto; }
 
+/* the layer control's collapse button */
+.layers-toggle {
+   display: block;
+   width: 100%;
+   margin: 0 0 6px;
+   padding: 3px 8px;
+   font: inherit;
+   font-size: 13px;
+   font-weight: 700;
+   text-align: left;
+   color: #312e81;
+   background: #eef0ff;
+   border: 1px solid #c6cbea;
+   border-radius: 6px;
+   cursor: pointer;
+}
+.layers-toggle:hover { background: #e2e5ff; }
+.layers-collapsed .leaflet-control-layers-list { display: none; }
+.layers-collapsed .layers-toggle { margin-bottom: 0; }
+
 /* on phones the info panel and the legend share the width, so both get narrower */
 @media (max-width: 640px) {
    .info { min-width: 0; max-width: 42vw; }

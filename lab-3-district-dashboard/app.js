@@ -397,3 +397,23 @@ document.getElementById('classes')
       }
       fillLegend(legend.getContainer());
    });
+
+// The manual keeps the layer control always open. This adds a button that collapses it, and starts it
+// collapsed on small screens, where an open control would cover the map.
+const layersBox = layerControl.getContainer();
+const layersToggle = L.DomUtil.create('button', 'layers-toggle');
+layersToggle.type = 'button';
+layersBox.insertBefore(layersToggle, layersBox.firstChild);
+
+function setLayersOpen(open) {
+   layersBox.classList.toggle('layers-collapsed', !open);
+   layersToggle.textContent = 'Layers ' + (open ? '\u25BE' : '\u25B8');
+   layersToggle.setAttribute('aria-expanded', String(open));
+}
+
+L.DomEvent.on(layersToggle, 'click', function (e) {
+   L.DomEvent.stop(e);
+   setLayersOpen(layersBox.classList.contains('layers-collapsed'));
+});
+
+setLayersOpen(window.innerWidth >= 700 && window.innerHeight >= 650);
