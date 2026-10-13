@@ -159,7 +159,8 @@ async function loadData() {
 
 loadData();
 
-const legend = L.control({ position: 'bottomright' });
+// bottom left, not bottom right: the right-hand corner already holds the layer control and the info panel
+const legend = L.control({ position: 'bottomleft' });
 
 function fillLegend(div) {
    const fmt = n => Math.round(n).toLocaleString();

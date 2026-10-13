@@ -116,3 +116,12 @@ select:focus-visible, input:focus-visible {
    box-shadow: none;
    text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
 }
+
+/* the legend scrolls instead of growing into the zoom buttons when the map is short */
+.legend { max-height: calc(100vh - 380px); overflow-y: auto; }
+
+/* on phones the info panel and the legend share the width, so both get narrower */
+@media (max-width: 640px) {
+   .info { min-width: 0; max-width: 42vw; }
+   .legend { max-width: 50vw; }
+}
