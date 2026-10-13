@@ -25,6 +25,8 @@ The district is **Sibi**, Balochistan: its centroid (67.94472, 29.76149) lies ou
 
 The request is `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/21`. The Esri template is `…/tile/{z}/{y}/{x}`, so in this URL the zoom is **5**, the **row** is **12** and the **column** is **21**. The attribution in the corner changes with the basemap (`Tiles © Esri` for imagery, `© OpenStreetMap contributors` for OpenStreetMap).
 
+*The Checkpoint 3 image and the two expanded-pane images in Checkpoint 9 were captured from Chrome's own DevTools, attached to the running dashboard.*
+
 The manual's default basemap, CARTO Positron, now answers every tile with "API KEY REQUIRED", so the quiet grey basemap is Esri's Light Gray Canvas instead.
 
 ### Checkpoint 4 – Density map, legend and layer control
