@@ -13,7 +13,7 @@
 ## 1. Checkpoint screenshots
 
 ### Checkpoint 1 – Project folder
-> **TODO:** screenshot of VS Code showing `lab-3-district-dashboard` with `index.html`, `style.css`, `app.js` and `data/districts.geojson`. Save it as `images/checkpoint-1-vscode.png` and replace this line with `![Checkpoint 1](images/checkpoint-1-vscode.png)`.
+![Checkpoint 1: VS Code with the lab folder](images/checkpoint-1-vscode.png)
 
 ### Checkpoint 2 – Centroid outside its district
 ![Checkpoint 2: Sibi, centroid and point on surface](images/checkpoint-2-sibi.png)
@@ -21,9 +21,11 @@
 The district is **Sibi**, Balochistan: its centroid (67.94472, 29.76149) lies outside its boundary, while its point on surface (68.25013, 29.72711) lies inside. `district_points.geojson` (Point on Surface, EPSG:4326, `COORDINATE_PRECISION` 5) is **35,738 bytes with 160 features**, and the points keep their district's attributes.
 
 ### Checkpoint 3 – Esri tile request
-> **TODO:** screenshot of the Network tab with an Esri tile request and its URL visible. Save it as `images/checkpoint-3-network.png` and replace this line with `![Checkpoint 3](images/checkpoint-3-network.png)`.
+![Checkpoint 3: the Network tab with an Esri tile request and its URL](images/checkpoint-3-network.png)
 
 The request is `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/5/12/21`. The Esri template is `…/tile/{z}/{y}/{x}`, so in this URL the zoom is **5**, the **row** is **12** and the **column** is **21**. The attribution in the corner changes with the basemap (`Tiles © Esri` for imagery, `© OpenStreetMap contributors` for OpenStreetMap).
+
+*The Checkpoint 3 image and the two expanded-pane images in Checkpoint 9 were captured from Chrome's own DevTools, attached to the running dashboard.*
 
 The manual's default basemap, CARTO Positron, now answers every tile with "API KEY REQUIRED", so the quiet grey basemap is Esri's Light Gray Canvas instead.
 
@@ -67,7 +69,17 @@ With Punjab selected (36 districts, 36 circles) I switched each overlay off and 
 | Hover highlight still works? | Yes | Circles only: the districts no longer highlight |
 | Can you inspect one district in Elements? | Yes, one `<path>` per district | No, all districts are pixels in one `<canvas>` |
 
-> **TODO:** screenshots of the Elements tab in both modes (open `index.html` and `index.html?canvas`, find `leaflet-overlay-pane`). Save them as `images/checkpoint-9-svg.png` and `images/checkpoint-9-canvas.png`, and add them under this table.
+#### SVG --> Elements Tab --> Leaflet-Pane
+![Checkpoint 9: Elements tab, SVG mode (index.html)](images/checkpoint-9-svg.png)
+
+![Checkpoint 9: leaflet-overlay-pane expanded in SVG mode: an svg, a g and one path per district](images/checkpoint-9-svg-pane.png)
+
+#### Canvas --> Elements Tab --> Leaflet-Pane
+![Checkpoint 9: Elements tab, canvas mode (index.html?canvas)](images/checkpoint-9-canvas.png)
+
+![Checkpoint 9: leaflet-overlay-pane expanded in canvas mode: a single canvas](images/checkpoint-9-canvas-pane.png)
+
+
 
 **Why hover fails on canvas.** Each pane gets its own canvas. The symbols pane's canvas sits above the districts' canvas and takes every pointer event, so only the circles respond (their tooltip still works).
 
