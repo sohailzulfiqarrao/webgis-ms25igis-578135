@@ -136,3 +136,8 @@ Leaflet.markercluster draws the 160 points as clustered markers on a "Points (cl
 `quantileBreaksOf` computes five equal-count classes from the 135 densities, and the Classes drop-down restyles the layer and rewrites the legend. The fixed breaks stay the default. **Check:** fixed breaks 50, 150, 400, 1000; quantile breaks 74, 275, 456, 869, which put 27, 27, 27, 27, 27 districts in the five classes; the choice survives a province change.
 
 ![Additional task 4](images/additional-4-quantile-classes.jpg)
+
+### 5. Layout fix: legend and layer control
+Testing on a short window showed the bottom-right legend covering the last row of the layer control and part of the info panel, and the layer control could not be collapsed (the manual keeps it open). The legend now sits at the bottom left and scrolls if the map is short, and a Layers button collapses and reopens the control; it starts collapsed on small screens. **Check:** I measured the controls at nine window sizes, open and in their default state, and none of them overlaps.
+
+![Additional task 5: a short window, with the layer control collapsed and the legend at the bottom left](images/layout-short-window.jpg)
