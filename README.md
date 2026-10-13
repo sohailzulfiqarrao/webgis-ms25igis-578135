@@ -38,7 +38,14 @@ Serve the repository folder instead, for example with the VS Code **Live Server*
 python -m http.server 5500
 ```
 
-Then open `/`, `/lab-1-First-Web-Map/` or `/lab-2-district-explorer/`.
+Then open:
+
+| Page | Local address |
+|---|---|
+| Landing page | `http://127.0.0.1:5500/` |
+| Lab 01 – First Web Map | `http://127.0.0.1:5500/lab-1-First-Web-Map/` |
+| Lab 02 – District Explorer | `http://127.0.0.1:5500/lab-2-district-explorer/` |
+| Lab 03 – District Dashboard | `http://127.0.0.1:5500/lab-3-district-dashboard/` |
 
 ---
 **Author:** Sohail Zulfiqar, MS GIS & Remote Sensing
