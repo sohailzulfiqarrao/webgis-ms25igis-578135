@@ -47,6 +47,8 @@
       attribution: '&copy; OpenStreetMap contributors'
    }).addTo(map);
 
+   const NO_DATA = '#bdbdbd';   // districts without a census figure (pop_2023 is null)
+
    const colours = {
       'Punjab': '#1b9e77', 'Sindh': '#d95f02', 'Khyber Pakhtunkhwa': '#7570b3',
       'Balochistan': '#e7298a', 'Islamabad': '#66a61e',
@@ -64,7 +66,7 @@
       const div = L.DomUtil.create('div', 'legend');
       div.innerHTML = '<h4>Province</h4>' + Object.keys(colours).map(function (name) {
          return '<i style="background:' + colours[name] + '"></i>' + name;
-      }).join('<br>');
+      }).join('<br>') + '<br><i style="background:' + NO_DATA + '"></i>No census data';
       return div;
    };
    legend.addTo(map);
@@ -90,19 +92,23 @@
             return {
                color: '#ffffff',
                weight: 1,
-               fillColor: colours[feature.properties.province] || '#888888',
+               fillColor: feature.properties.pop_2023 === null
+                  ? NO_DATA
+                  : (colours[feature.properties.province] || '#888888'),
                fillOpacity: 0.7
             };
          },
          onEachFeature: function (feature, featureLayer) {
             const p = feature.properties;
-            featureLayer.bindTooltip(p.name + ', ' + p.province, { sticky: true });
+            featureLayer.bindTooltip(p.name + ', ' + p.province +
+               (p.pop_2023 === null ? ' (no census data)' : ''), { sticky: true });
          }
       }).addTo(map);
 
       map.fitBounds(districtLayer.getBounds());
+      const noData = data.features.filter(function (f) { return f.properties.pop_2023 === null; }).length;
       document.getElementById('count').textContent =
-         data.features.length + ' districts';
+         data.features.length + ' districts' + (noData ? ', ' + noData + ' without census data' : '');
    }
 
    // the drop-down lists the provinces and reloads the map from the database
