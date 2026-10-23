@@ -27,6 +27,7 @@
    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
    <script>
       const DISTRICTS_URL = "{% url 'districts-geojson' %}";
+      const WHERE_URL = "{% url 'district-at' %}";
 
       const map = L.map('map', {
          maxBounds: [[21.5, 58.5], [39.0, 80.5]],
@@ -79,6 +80,16 @@
       }
 
       loadDistricts();
+
+      map.on('click', async function (e) {
+         const url = WHERE_URL + '?lat=' + e.latlng.lat + '&lng=' + e.latlng.lng;
+         const answer = await (await fetch(url)).json();
+         const text = answer.district
+            ? '<strong>' + answer.district + '</strong>, ' + answer.province +
+              '<br>Population: ' + show(answer.pop_2023)
+            : 'Not inside any district';
+         L.popup().setLatLng(e.latlng).setContent(text).openOn(map);
+      });
    </script>
 </body>
 </html>
