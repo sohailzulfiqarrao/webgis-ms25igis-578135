@@ -10,10 +10,26 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# GeoDjango needs the GDAL, GEOS and PROJ libraries. On Windows they come
+# from OSGeo4W; putting its bin folder on PATH lets Django find them.
+# The manual installs OSGeo4W in C:\OSGeo4W. On this machine drive C: is full,
+# so it lives in D:\OSGeo4W and the OSGEO4W_ROOT environment variable says so.
+if os.name == "nt":
+    OSGEO4W = os.environ.get("OSGEO4W_ROOT", r"C:\OSGeo4W")
+    os.environ["OSGEO4W_ROOT"] = OSGEO4W
+    # GDAL 3.13 keeps its data under apps\gdal, not under share\gdal
+    os.environ["GDAL_DATA"] = OSGEO4W + r"\apps\gdal\share\gdal"
+    # PROJ_LIB is also set machine-wide by PostgreSQL's PostGIS, pointing at an
+    # older proj.db; overwriting it here makes GDAL use the matching one.
+    os.environ["PROJ_DATA"] = OSGEO4W + r"\share\proj"
+    os.environ["PROJ_LIB"] = OSGEO4W + r"\share\proj"
+    os.environ["PATH"] = OSGEO4W + r"\bin;" + os.environ["PATH"]
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,6 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
+    'districts',
 ]
 
 MIDDLEWARE = [
@@ -72,10 +90,16 @@ WSGI_APPLICATION = 'webgis.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+# The password is read from an environment variable so that it is never
+# written into a file that gets committed to GitHub.
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'webgis',
+        'USER': 'postgres',
+        'PASSWORD': os.environ.get('WEBGIS_DB_PASSWORD', ''),
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
