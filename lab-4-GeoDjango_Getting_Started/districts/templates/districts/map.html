@@ -27,13 +27,17 @@
    </div>
    <span id="count">loading...</span>
    <span class="hint">Click a district: PostGIS says which one it is</span>
+   {% if snapshot %}<span class="note">Static snapshot of the Django app, exported from PostGIS on {{ exported }}.
+      The live version needs Django and PostGIS, so it runs on your own computer: see the Lab 4 report.</span>{% endif %}
 </div>
 
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-   const DISTRICTS_URL = "{% url 'districts-geojson' %}";
+   // SNAPSHOT is true only in the static copy for GitHub Pages (python manage.py export_static)
+   const SNAPSHOT = {% if snapshot %}true{% else %}false{% endif %};
+   const DISTRICTS_URL = SNAPSHOT ? "districts.json" : "{% url 'districts-geojson' %}";
    const WHERE_URL = "{% url 'district-at' %}";
 
    const map = L.map('map', {
@@ -73,18 +77,33 @@
 
    let districtLayer = null;
 
+   let allData = null;   // snapshot only: the whole exported file, filtered in the browser
+
    // province = "" loads everything; otherwise PostGIS does the filtering:
    // /api/districts/?province=Sindh returns only that province
-   async function loadDistricts(province) {
+   async function getData(province) {
+      if (SNAPSHOT) {
+         if (!allData) { allData = await (await fetch(DISTRICTS_URL)).json(); }
+         if (!province) { return allData; }
+         return {
+            type: 'FeatureCollection',
+            features: allData.features.filter(function (f) { return f.properties.province === province; })
+         };
+      }
       const url = province
          ? DISTRICTS_URL + '?province=' + encodeURIComponent(province)
          : DISTRICTS_URL;
       const response = await fetch(url);
       if (!response.ok) {
          console.error('Request failed with status', response.status);
-         return;
+         return null;
       }
-      const data = await response.json();
+      return response.json();
+   }
+
+   async function loadDistricts(province) {
+      const data = await getData(province);
+      if (!data) { return; }
 
       if (districtLayer) { map.removeLayer(districtLayer); }
       districtLayer = L.geoJSON(data, {
@@ -122,9 +141,38 @@
 
    loadDistricts("");
 
+   // ray-casting point-in-polygon, used only by the static snapshot (the live page asks PostGIS)
+   function inRing(x, y, ring) {
+      let inside = false;
+      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+         const xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+         if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) { inside = !inside; }
+      }
+      return inside;
+   }
+
+   function inPolygon(x, y, polygon) {
+      if (!inRing(x, y, polygon[0])) { return false; }
+      return !polygon.slice(1).some(function (hole) { return inRing(x, y, hole); });
+   }
+
+   async function whichDistrict(lat, lng) {
+      if (!SNAPSHOT) {
+         return (await fetch(WHERE_URL + '?lat=' + lat + '&lng=' + lng)).json();
+      }
+      await getData('');
+      for (const f of allData.features) {
+         const g = f.geometry;
+         const polygons = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
+         if (polygons.some(function (polygon) { return inPolygon(lng, lat, polygon); })) {
+            return { district: f.properties.name, province: f.properties.province, pop_2023: f.properties.pop_2023 };
+         }
+      }
+      return { district: null };
+   }
+
    map.on('click', async function (e) {
-      const url = WHERE_URL + '?lat=' + e.latlng.lat + '&lng=' + e.latlng.lng;
-      const answer = await (await fetch(url)).json();
+      const answer = await whichDistrict(e.latlng.lat, e.latlng.lng);
       const text = answer.district
          ? '<strong>' + answer.district + '</strong>, ' + answer.province +
            '<br>Population: ' + show(answer.pop_2023)

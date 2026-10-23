@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Districts from PostGIS</title>
+   <link rel="stylesheet"
+         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+   <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+   <img class="logo" src="nust.jpg" alt="NUST logo: Defining futures">
+   <div class="titles">
+      <h1>Districts from PostGIS</h1>
+      <p class="subtitle">Served by Django from a spatial database</p>
+   </div>
+</header>
+
+<div id="panel">
+   <div class="field">
+      <label for="province">Province</label>
+      <select id="province">
+         <option value="">All provinces</option>
+      </select>
+   </div>
+   <span id="count">loading...</span>
+   <span class="hint">Click a district: PostGIS says which one it is</span>
+   <span class="note">Static snapshot of the Django app, exported from PostGIS on 2026-10-23.
+      The live version needs Django and PostGIS, so it runs on your own computer: see the Lab 4 report.</span>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+   // SNAPSHOT is true only in the static copy for GitHub Pages (python manage.py export_static)
+   const SNAPSHOT = true;
+   const DISTRICTS_URL = SNAPSHOT ? "districts.json" : "/api/districts/";
+   const WHERE_URL = "/api/where/";
+
+   const map = L.map('map', {
+      maxBounds: [[21.5, 58.5], [39.0, 80.5]],
+      maxBoundsViscosity: 1.0,
+      minZoom: 5
+   }).setView([30.3753, 69.3451], 5);
+
+   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+   }).addTo(map);
+
+   const NO_DATA = '#bdbdbd';   // districts without a census figure (pop_2023 is null)
+
+   const colours = {
+      'Punjab': '#1b9e77', 'Sindh': '#d95f02', 'Khyber Pakhtunkhwa': '#7570b3',
+      'Balochistan': '#e7298a', 'Islamabad': '#66a61e',
+      'Azad Kashmir': '#e6ab02', 'Gilgit Baltistan': '#a6761d'
+   };
+
+   function show(value) {
+      return value === null || value === undefined
+         ? 'not recorded' : value.toLocaleString();
+   }
+
+   // the province colours as a legend, bottom left
+   const legend = L.control({ position: 'bottomleft' });
+   legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = '<h4>Province</h4>' + Object.keys(colours).map(function (name) {
+         return '<i style="background:' + colours[name] + '"></i>' + name;
+      }).join('<br>') + '<br><i style="background:' + NO_DATA + '"></i>No census data';
+      return div;
+   };
+   legend.addTo(map);
+
+   let districtLayer = null;
+
+   let allData = null;   // snapshot only: the whole exported file, filtered in the browser
+
+   // province = "" loads everything; otherwise PostGIS does the filtering:
+   // /api/districts/?province=Sindh returns only that province
+   async function getData(province) {
+      if (SNAPSHOT) {
+         if (!allData) { allData = await (await fetch(DISTRICTS_URL)).json(); }
+         if (!province) { return allData; }
+         return {
+            type: 'FeatureCollection',
+            features: allData.features.filter(function (f) { return f.properties.province === province; })
+         };
+      }
+      const url = province
+         ? DISTRICTS_URL + '?province=' + encodeURIComponent(province)
+         : DISTRICTS_URL;
+      const response = await fetch(url);
+      if (!response.ok) {
+         console.error('Request failed with status', response.status);
+         return null;
+      }
+      return response.json();
+   }
+
+   async function loadDistricts(province) {
+      const data = await getData(province);
+      if (!data) { return; }
+
+      if (districtLayer) { map.removeLayer(districtLayer); }
+      districtLayer = L.geoJSON(data, {
+         style: function (feature) {
+            return {
+               color: '#ffffff',
+               weight: 1,
+               fillColor: feature.properties.pop_2023 === null
+                  ? NO_DATA
+                  : (colours[feature.properties.province] || '#888888'),
+               fillOpacity: 0.7
+            };
+         },
+         onEachFeature: function (feature, featureLayer) {
+            const p = feature.properties;
+            featureLayer.bindTooltip(p.name + ', ' + p.province +
+               (p.pop_2023 === null ? ' (no census data)' : ''), { sticky: true });
+         }
+      }).addTo(map);
+
+      map.fitBounds(districtLayer.getBounds());
+      const noData = data.features.filter(function (f) { return f.properties.pop_2023 === null; }).length;
+      document.getElementById('count').textContent =
+         data.features.length + ' districts' + (noData ? ', ' + noData + ' without census data' : '');
+   }
+
+   // the drop-down lists the provinces and reloads the map from the database
+   const provinceSelect = document.getElementById('province');
+   Object.keys(colours).sort().forEach(function (name) {
+      provinceSelect.add(new Option(name, name));
+   });
+   provinceSelect.addEventListener('change', function () {
+      loadDistricts(provinceSelect.value);
+   });
+
+   loadDistricts("");
+
+   // ray-casting point-in-polygon, used only by the static snapshot (the live page asks PostGIS)
+   function inRing(x, y, ring) {
+      let inside = false;
+      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+         const xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+         if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) { inside = !inside; }
+      }
+      return inside;
+   }
+
+   function inPolygon(x, y, polygon) {
+      if (!inRing(x, y, polygon[0])) { return false; }
+      return !polygon.slice(1).some(function (hole) { return inRing(x, y, hole); });
+   }
+
+   async function whichDistrict(lat, lng) {
+      if (!SNAPSHOT) {
+         return (await fetch(WHERE_URL + '?lat=' + lat + '&lng=' + lng)).json();
+      }
+      await getData('');
+      for (const f of allData.features) {
+         const g = f.geometry;
+         const polygons = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
+         if (polygons.some(function (polygon) { return inPolygon(lng, lat, polygon); })) {
+            return { district: f.properties.name, province: f.properties.province, pop_2023: f.properties.pop_2023 };
+         }
+      }
+      return { district: null };
+   }
+
+   map.on('click', async function (e) {
+      const answer = await whichDistrict(e.latlng.lat, e.latlng.lng);
+      const text = answer.district
+         ? '<strong>' + answer.district + '</strong>, ' + answer.province +
+           '<br>Population: ' + show(answer.pop_2023)
+         : 'Not inside any district';
+      L.popup().setLatLng(e.latlng).setContent(text).openOn(map);
+   });
+</script>
+</body>
+</html>
