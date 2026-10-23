@@ -149,3 +149,9 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+
+# Django sends "Referrer-Policy: same-origin" by default, so the browser sends no
+# Referer to other sites. OpenStreetMap's tile servers need one and otherwise
+# answer every tile with an "Access blocked" picture. Send the origin cross-site.
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
