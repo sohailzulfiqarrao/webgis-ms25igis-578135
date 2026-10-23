@@ -19,6 +19,12 @@
 </header>
 
 <div id="panel">
+   <div class="field">
+      <label for="province">Province</label>
+      <select id="province">
+         <option value="">All provinces</option>
+      </select>
+   </div>
    <span id="count">loading...</span>
    <span class="hint">Click a district: PostGIS says which one it is</span>
 </div>
@@ -63,15 +69,23 @@
    };
    legend.addTo(map);
 
-   async function loadDistricts() {
-      const response = await fetch(DISTRICTS_URL);
+   let districtLayer = null;
+
+   // province = "" loads everything; otherwise PostGIS does the filtering:
+   // /api/districts/?province=Sindh returns only that province
+   async function loadDistricts(province) {
+      const url = province
+         ? DISTRICTS_URL + '?province=' + encodeURIComponent(province)
+         : DISTRICTS_URL;
+      const response = await fetch(url);
       if (!response.ok) {
          console.error('Request failed with status', response.status);
          return;
       }
       const data = await response.json();
 
-      const layer = L.geoJSON(data, {
+      if (districtLayer) { map.removeLayer(districtLayer); }
+      districtLayer = L.geoJSON(data, {
          style: function (feature) {
             return {
                color: '#ffffff',
@@ -86,12 +100,21 @@
          }
       }).addTo(map);
 
-      map.fitBounds(layer.getBounds());
+      map.fitBounds(districtLayer.getBounds());
       document.getElementById('count').textContent =
          data.features.length + ' districts';
    }
 
-   loadDistricts();
+   // the drop-down lists the provinces and reloads the map from the database
+   const provinceSelect = document.getElementById('province');
+   Object.keys(colours).sort().forEach(function (name) {
+      provinceSelect.add(new Option(name, name));
+   });
+   provinceSelect.addEventListener('change', function () {
+      loadDistricts(provinceSelect.value);
+   });
+
+   loadDistricts("");
 
    map.on('click', async function (e) {
       const url = WHERE_URL + '?lat=' + e.latlng.lat + '&lng=' + e.latlng.lng;
