@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
    <meta charset="utf-8">
@@ -6,90 +6,102 @@
    <title>Districts from PostGIS</title>
    <link rel="stylesheet"
          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-   <style>
-      body { font-family: system-ui, sans-serif; margin: 0;
-             color: #23373b; background: #f4f6f6; }
-      header { padding: 16px 24px 12px; }
-      h1 { margin: 0; font-size: 22px; }
-      .subtitle { margin: 4px 0 0; color: #5b6a6e; }
-      #map { height: calc(100vh - 90px); min-height: 400px; }
-   </style>
+   <link rel="stylesheet" href="{% static 'districts/style.css' %}">
 </head>
 <body>
-   <header>
+
+<header>
+   <img class="logo" src="{% static 'districts/nust.jpg' %}" alt="NUST logo: Defining futures">
+   <div class="titles">
       <h1>Districts from PostGIS</h1>
-      <p class="subtitle">
-         <span id="count">loading...</span>, served by Django from the database.
-      </p>
-   </header>
-   <div id="map"></div>
+      <p class="subtitle">Served by Django from a spatial database</p>
+   </div>
+</header>
 
-   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-   <script>
-      const DISTRICTS_URL = "{% url 'districts-geojson' %}";
-      const WHERE_URL = "{% url 'district-at' %}";
+<div id="panel">
+   <span id="count">loading...</span>
+   <span class="hint">Click a district: PostGIS says which one it is</span>
+</div>
 
-      const map = L.map('map', {
-         maxBounds: [[21.5, 58.5], [39.0, 80.5]],
-         maxBoundsViscosity: 1.0,
-         minZoom: 5
-      }).setView([30.3753, 69.3451], 5);
+<div id="map"></div>
 
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-         maxZoom: 19,
-         attribution: '&copy; OpenStreetMap contributors'
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+   const DISTRICTS_URL = "{% url 'districts-geojson' %}";
+   const WHERE_URL = "{% url 'district-at' %}";
+
+   const map = L.map('map', {
+      maxBounds: [[21.5, 58.5], [39.0, 80.5]],
+      maxBoundsViscosity: 1.0,
+      minZoom: 5
+   }).setView([30.3753, 69.3451], 5);
+
+   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+   }).addTo(map);
+
+   const colours = {
+      'Punjab': '#1b9e77', 'Sindh': '#d95f02', 'Khyber Pakhtunkhwa': '#7570b3',
+      'Balochistan': '#e7298a', 'Islamabad': '#66a61e',
+      'Azad Kashmir': '#e6ab02', 'Gilgit Baltistan': '#a6761d'
+   };
+
+   function show(value) {
+      return value === null || value === undefined
+         ? 'not recorded' : value.toLocaleString();
+   }
+
+   // the province colours as a legend, bottom left
+   const legend = L.control({ position: 'bottomleft' });
+   legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = '<h4>Province</h4>' + Object.keys(colours).map(function (name) {
+         return '<i style="background:' + colours[name] + '"></i>' + name;
+      }).join('<br>');
+      return div;
+   };
+   legend.addTo(map);
+
+   async function loadDistricts() {
+      const response = await fetch(DISTRICTS_URL);
+      if (!response.ok) {
+         console.error('Request failed with status', response.status);
+         return;
+      }
+      const data = await response.json();
+
+      const layer = L.geoJSON(data, {
+         style: function (feature) {
+            return {
+               color: '#ffffff',
+               weight: 1,
+               fillColor: colours[feature.properties.province] || '#888888',
+               fillOpacity: 0.7
+            };
+         },
+         onEachFeature: function (feature, featureLayer) {
+            const p = feature.properties;
+            featureLayer.bindTooltip(p.name + ', ' + p.province, { sticky: true });
+         }
       }).addTo(map);
 
-      const colours = {
-         'Punjab': '#1b9e77', 'Sindh': '#d95f02', 'Khyber Pakhtunkhwa': '#7570b3',
-         'Balochistan': '#e7298a', 'Islamabad': '#66a61e',
-         'Azad Kashmir': '#e6ab02', 'Gilgit Baltistan': '#a6761d'
-      };
+      map.fitBounds(layer.getBounds());
+      document.getElementById('count').textContent =
+         data.features.length + ' districts';
+   }
 
-      function show(value) {
-         return value === null || value === undefined
-            ? 'not recorded' : value.toLocaleString();
-      }
+   loadDistricts();
 
-      async function loadDistricts() {
-         const response = await fetch(DISTRICTS_URL);
-         if (!response.ok) {
-            console.error('Request failed with status', response.status);
-            return;
-         }
-         const data = await response.json();
-
-         const layer = L.geoJSON(data, {
-            style: function (feature) {
-               return {
-                  color: '#ffffff',
-                  weight: 1,
-                  fillColor: colours[feature.properties.province] || '#888888',
-                  fillOpacity: 0.7
-               };
-            },
-            onEachFeature: function (feature, featureLayer) {
-               const p = feature.properties;
-               featureLayer.bindTooltip(p.name + ', ' + p.province, { sticky: true });
-            }
-         }).addTo(map);
-
-         map.fitBounds(layer.getBounds());
-         document.getElementById('count').textContent =
-            data.features.length + ' districts';
-      }
-
-      loadDistricts();
-
-      map.on('click', async function (e) {
-         const url = WHERE_URL + '?lat=' + e.latlng.lat + '&lng=' + e.latlng.lng;
-         const answer = await (await fetch(url)).json();
-         const text = answer.district
-            ? '<strong>' + answer.district + '</strong>, ' + answer.province +
-              '<br>Population: ' + show(answer.pop_2023)
-            : 'Not inside any district';
-         L.popup().setLatLng(e.latlng).setContent(text).openOn(map);
-      });
-   </script>
+   map.on('click', async function (e) {
+      const url = WHERE_URL + '?lat=' + e.latlng.lat + '&lng=' + e.latlng.lng;
+      const answer = await (await fetch(url)).json();
+      const text = answer.district
+         ? '<strong>' + answer.district + '</strong>, ' + answer.province +
+           '<br>Population: ' + show(answer.pop_2023)
+         : 'Not inside any district';
+      L.popup().setLatLng(e.latlng).setContent(text).openOn(map);
+   });
+</script>
 </body>
 </html>
