@@ -14,3 +14,15 @@ class District(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.province})"
+
+
+class Facility(models.Model):
+    name = models.CharField(max_length=100)
+    geom = models.PointField(srid=4326)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name_plural = "facilities"
+
+    def __str__(self):
+        return self.name
