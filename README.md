@@ -7,6 +7,8 @@ Laboratory work for the Web GIS course, MS Remote Sensing and GIS, Institute of 
 
 **Course page:** https://shahidnawazkhan.github.io/Fall2026WebGIS/
 
+**Main page:** https://sohailzulfiqarrao.github.io/ (Web GIS and machine learning together)
+
 ## Labs
 
 | Lab | Folder | Live map | Report |
