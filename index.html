@@ -35,6 +35,77 @@
       </dl>
    </section>
 
+   <section class="wrap viz-lab" aria-labelledby="viz-title">
+      <div class="viz-head">
+         <p class="viz-kicker">// live</p>
+         <h2 id="viz-title">Web GIS, in motion</h2>
+         <p class="section-note">Four small maps running in your browser, drawn from the real district boundaries and the figures measured in the labs.</p>
+      </div>
+      <div class="viz-grid">
+
+         <figure class="viz-card" data-viz="choropleth">
+            <figcaption class="viz-top">
+               <span class="viz-name">Choropleth map</span>
+               <span class="viz-tag viz-real">Labs 2 and 3 data</span>
+               <button class="viz-replay" type="button" aria-label="Replay the choropleth animation">&#8635;</button>
+            </figcaption>
+            <canvas role="img" aria-label="Animation: the 160 districts of Pakistan fill with colour from west to east according to their population density, in five classes"></canvas>
+            <p class="viz-stats">
+               <span>coloured <b data-s="shown">0/160</b></span>
+               <span><b data-s="hover">point at a district</b></span>
+            </p>
+            <p class="viz-note">Population per km&sup2; in the five classes of Lab 3: 20, 18, 34, 41 and 22 districts, and 25 with no census data. Point at a district to read its density.</p>
+         </figure>
+
+         <figure class="viz-card" data-viz="probe">
+            <figcaption class="viz-top">
+               <span class="viz-name">Which district is here?</span>
+               <span class="viz-tag viz-real">Lab 4 query</span>
+               <button class="viz-replay" type="button" aria-label="Replay the point query animation">&#8635;</button>
+            </figcaption>
+            <canvas role="img" aria-label="Animation: a point travels across Pakistan and the district that contains it is highlighted, with its name, province and population"></canvas>
+            <p class="viz-stats">
+               <span>lat <b data-s="lat">--</b></span>
+               <span>lng <b data-s="lng">--</b></span>
+               <span><b data-s="district">--</b></span>
+            </p>
+            <p class="viz-note">A point-in-polygon test, the idea behind <code>ST_Contains</code> in Lab 4. Here the browser does the test on the real boundaries; in the app PostGIS answers it.</p>
+         </figure>
+
+         <figure class="viz-card" data-viz="tiles">
+            <figcaption class="viz-top">
+               <span class="viz-name">Map tiles and zoom</span>
+               <span class="viz-tag">tile maths</span>
+               <button class="viz-replay" type="button" aria-label="Replay the zoom animation">&#8635;</button>
+            </figcaption>
+            <canvas role="img" aria-label="Animation: the map zooms in on Islamabad while the tile grid splits each tile in four at every zoom level and the tile containing Islamabad is labelled z/x/y"></canvas>
+            <p class="viz-stats">
+               <span>zoom <b data-s="zoom">5.0</b></span>
+               <span>tile <b data-s="tile">--</b></span>
+               <span>tiles in the world <b data-s="world">--</b></span>
+            </p>
+            <p class="viz-note">Every zoom level splits each tile into four, and each is addressed z/x/y, as in the tile URL of Lab 3. The amber tile is the one that contains Islamabad.</p>
+         </figure>
+
+         <figure class="viz-card" data-viz="requests">
+            <figcaption class="viz-top">
+               <span class="viz-name">Request to response</span>
+               <span class="viz-tag viz-real">Lab 4 sizes</span>
+               <button class="viz-replay" type="button" aria-label="Replay the request animation">&#8635;</button>
+            </figcaption>
+            <canvas role="img" aria-label="Animation: a request travels from the browser to Django to PostGIS and the response comes back, with a size bar that is far smaller when the database filters first"></canvas>
+            <p class="viz-stats">
+               <span><b data-s="path">--</b></span>
+               <span>rows <b data-s="rows">0</b></span>
+               <span><b data-s="bytes">0</b> B</span>
+               <span>saved <b data-s="saved">--</b></span>
+            </p>
+            <p class="viz-note">Sizes measured in Lab 4 with the Network tab. Asking PostGIS for one province sends 83% less than the whole file, and one point sends 71 bytes.</p>
+         </figure>
+
+      </div>
+   </section>
+
    <div class="wrap section-head">
       <h2 id="labs-title">Laboratory work</h2>
       <p class="section-note">Each lab has a live map and a written report.</p>
@@ -162,6 +233,8 @@
          <a href="https://github.com/sohailzulfiqarrao/webgis-ms25igis-578135">Repository</a></p>
    </div>
 </footer>
+
+<script src="assets/geo-viz.js" defer></script>
 
 </body>
 </html>

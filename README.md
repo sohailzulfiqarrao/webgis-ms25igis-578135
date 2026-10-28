@@ -23,6 +23,11 @@ Laboratory work for the Web GIS course, MS Remote Sensing and GIS, Institute of 
 ```
 index.html                  landing page listing every lab
 assets/site.css             its stylesheet
+assets/neural.css           the landing page theme only (dark, animated); no lab page loads it
+assets/geo-viz.js           the four live maps on the landing page, drawn from assets/geo-districts.json
+assets/geo-districts.json   the 160 district boundaries, generalised to about 1 km (85 KB), loaded only when needed
+assets/motif.svg            the still background art; motif-fx.svg holds its few moving parts, and
+                            motif-static.svg is the frozen copy used when the visitor prefers reduced motion
 lab-1-First-Web-Map/        Lab 01: Leaflet map of Islamabad
 lab-2-district-explorer/    Lab 02: districts of Pakistan from a shapefile
 lab-3-district-dashboard/   Lab 03: layers, controls and interaction
@@ -32,6 +37,12 @@ lab-4-GeoDjango_Getting_Started/   Lab 04: Django, PostGIS, admin panel and Leaf
 ```
 
 Each new lab gets its own folder and a new card on the landing page.
+
+The "Web GIS, in motion" section runs only while it is on screen and the tab is visible, and with
+`prefers-reduced-motion` each map is drawn once, in its finished state. The choropleth uses Lab 3's five density classes
+(20, 18, 34, 41 and 22 districts, and 25 with no data), the point query is a point-in-polygon test on the same
+boundaries, the tile numbers are computed with the Web Mercator tile formula, and the request sizes are the ones
+measured in Lab 4.
 
 ## Run it locally
 
