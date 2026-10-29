@@ -8,6 +8,11 @@
    prefers-reduced-motion each panel is drawn once, in its finished state. */
 (function () {
    'use strict';
+   // the animated background art plays only near the top of the page (see .bg-still in neural.css)
+   var bgTick = false;
+   function bgState() { bgTick = false; document.body.classList.toggle('bg-still', window.scrollY > 160); }
+   window.addEventListener('scroll', function () { if (!bgTick) { bgTick = true; requestAnimationFrame(bgState); } }, { passive: true });
+   bgState();
    var cards = document.querySelectorAll('.viz-card');
    if (!cards.length) { return; }
 

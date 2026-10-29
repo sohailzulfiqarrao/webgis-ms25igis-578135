@@ -195,9 +195,11 @@ body.neural .viz-stats span { white-space: nowrap; }
 body.neural .viz-stats b { color: var(--vz); font-weight: 700; font-variant-numeric: tabular-nums; }
 body.neural .viz-note { margin: 0; padding: 2px 14px 14px; font-size: 13px; line-height: 1.5; color: #8296b4; }
 @media (max-width: 760px) { body.neural .viz-grid { grid-template-columns: 1fr; } }
+/* once the visitor has scrolled past the top, the background art stops moving so that the panels run smoothly */
+body.neural.bg-still::after { background-image: url("motif.svg"); }
 @media (prefers-reduced-motion: reduce) {
    body.neural .viz-replay { display: none; }
-   body.neural::after { background-image: url("motif-static.svg"); }
+   body.neural::after, body.neural.bg-still::after { background-image: url("motif-static.svg"); }
 }
 
 body.neural .viz-stats code, body.neural .viz-note code { font-family: var(--mono); font-size: .92em; color: #c4d4ea; }
