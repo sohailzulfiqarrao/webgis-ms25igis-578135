@@ -9,7 +9,7 @@
    <meta property="og:description" content="Interactive web maps built from scratch: a first Leaflet map and a district map of Pakistan made from a shapefile.">
    <meta property="og:image" content="https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/assets/lab-2-map.jpg">
    <link rel="stylesheet" href="assets/site.css">
-   <link rel="stylesheet" href="assets/neural.css">
+   <link rel="stylesheet" href="assets/neural.css?v=20261030">
    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body class="neural">
@@ -39,7 +39,7 @@
       <div class="viz-head">
          <p class="viz-kicker">// live</p>
          <h2 id="viz-title">Web GIS, in motion</h2>
-         <p class="section-note">Four small maps running in your browser, drawn from the real district boundaries and the figures measured in the labs.</p>
+         <p class="section-note">Eight small maps running in your browser, drawn from the real district boundaries, the census figures and the sizes measured in the labs.</p>
       </div>
       <div class="viz-grid">
 
@@ -101,6 +101,63 @@
                <span>saved <b data-s="saved">--</b></span>
             </p>
             <p class="viz-note">Sizes measured in Lab 4 with the Network tab. Asking PostGIS for one province sends 83% less than the whole file, and one point sends 71 bytes.</p>
+         </figure>
+
+         <figure class="viz-card" data-viz="layers">
+            <figcaption class="viz-top">
+               <span class="viz-name">Layer control</span>
+               <span class="viz-tag viz-real">Lab 3 layers</span>
+               <button class="viz-replay" type="button" aria-label="Replay the layer control animation">&#8635;</button>
+            </figcaption>
+            <canvas role="img" aria-label="Animation: the density map, the proportional circles, the district points and a 25 kilometre circle around NUST are switched on one at a time in a layer control, then off again one at a time"></canvas>
+            <p class="viz-stats">
+               <span>layers on <b data-s="on">0/4</b></span>
+               <span>last change <b data-s="last">--</b></span>
+            </p>
+            <p class="viz-note">Lab 3&rsquo;s layer control: every overlay is its own layer, switched on and off independently. The density polygons sit at the bottom, the circles (radius = square root of population) in a pane above them, then the district points and the 25 km NUST circle.</p>
+         </figure>
+
+         <figure class="viz-card" data-viz="heat">
+            <figcaption class="viz-top">
+               <span class="viz-name">Population heatmap</span>
+               <span class="viz-tag viz-real">Labs 2 and 3 data</span>
+               <button class="viz-replay" type="button" aria-label="Replay the population heatmap animation">&#8635;</button>
+            </figcaption>
+            <canvas role="img" aria-label="Animation: the population of the 135 districts with census data is smoothed into a heat surface whose bandwidth grows from a few kilometres to over a hundred and then shrinks again"></canvas>
+            <p class="viz-stats">
+               <span>bandwidth <b data-s="h">--</b></span>
+               <span>hottest district <b data-s="hot">--</b></span>
+            </p>
+            <p class="viz-note">A kernel density: every district point spreads its weight (the square root of its population) over a bandwidth h, and the overlap becomes heat. A small h shows individual districts; a large h shows the urban regions. The colour scale follows the peak, so detail survives at every h.</p>
+         </figure>
+
+         <figure class="viz-card" data-viz="groups">
+            <figcaption class="viz-top">
+               <span class="viz-name">Grouping districts (k-means)</span>
+               <span class="viz-tag viz-real">Labs 2 and 3 data</span>
+               <button class="viz-replay" type="button" aria-label="Replay the grouping districts (k-means) animation">&#8635;</button>
+            </figcaption>
+            <canvas role="img" aria-label="Animation: the districts are grouped into five clusters by their density and population, the colours settling on the map while the cluster centres move in a scatter plot"></canvas>
+            <p class="viz-stats">
+               <span>iteration <b data-s="iter">0</b></span>
+               <span>inertia <b data-s="inertia">--</b></span>
+               <span><b data-s="state">random start</b></span>
+            </p>
+            <p class="viz-note">k-means on two numbers per district, log density and log population, for the 135 districts with data. No coordinates are used, yet the sparsest group is 23 districts of Balochistan (of 25), and the densest is Lahore and five Karachi districts.</p>
+         </figure>
+
+         <figure class="viz-card" data-viz="schemes">
+            <figcaption class="viz-top">
+               <span class="viz-name">Classification schemes</span>
+               <span class="viz-tag viz-real">Labs 2 and 3 data</span>
+               <button class="viz-replay" type="button" aria-label="Replay the classification schemes animation">&#8635;</button>
+            </figcaption>
+            <canvas role="img" aria-label="Animation: the same population densities are cut into five classes by four different rules, and the map colours and the bars of districts per class change with each rule"></canvas>
+            <p class="viz-stats">
+               <span>rule <b data-s="scheme">--</b></span>
+               <span>largest class <b data-s="big">--</b></span>
+            </p>
+            <p class="viz-note">The same 135 densities cut into five classes by four rules. Lab 3&rsquo;s breaks and quantiles spread the districts out; equal interval and natural breaks put 131 and 126 of them in one class, because Central Karachi (58,715 per km&sup2;) stretches the scale.</p>
          </figure>
 
       </div>
@@ -234,7 +291,8 @@
    </div>
 </footer>
 
-<script src="assets/geo-viz.js" defer></script>
+<script src="assets/geo-viz2.js?v=20261030" defer></script>
+<script src="assets/geo-viz.js?v=20261030" defer></script>
 
 </body>
 </html>

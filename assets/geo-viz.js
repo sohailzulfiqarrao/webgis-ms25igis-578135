@@ -378,6 +378,11 @@
 
    /* ---------- wiring ---------- */
    var makers = { choropleth: choropleth, probe: probe, tiles: tiles, requests: requests };
+   if (typeof window.GEOVIZ_EXTRA === 'function') {                                    // four more maps, from geo-viz2.js
+      var extra = window.GEOVIZ_EXTRA({ base: base, fit: fit, ensureBase: ensureBase, paintBase: paintBase, geo: function () { return GEO; }, at: findAt, COL: COL, TEXT: TEXT, GRID: GRID, AXIS: AXIS, MONO: MONO, CLS: CLS, NODATA: NODATA,
+         LON0: LON0, LAT1: LAT1, KX: KX, reduce: reduce, clamp: clamp, ease: ease, easeIO: easeIO, lerp: lerp, rgba: rgba, fmt: fmt });
+      Object.keys(extra).forEach(function (k) { makers[k] = extra[k]; });
+   }
    var panels = [], running = false, last = 0;
 
    function frame(now) {
@@ -409,7 +414,7 @@
    function loadData() {
       if (loading || GEO) { return; }
       loading = true;
-      fetch('assets/geo-districts.json').then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); }).then(function (raw) {
+      fetch('assets/geo-districts.json?v=20261030').then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); }).then(function (raw) {
          GEO = decode(raw);
          panels.forEach(function (p) { if (p.needsData) { p.resize(); if (reduce) { settle(p); } else { p.reset(); p.draw(); } } });
          kick();
