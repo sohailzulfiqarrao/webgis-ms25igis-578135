@@ -185,9 +185,29 @@
       return document.querySelector('input[name="mode"]:checked').value;
    }
 
+   const nearLayer = L.layerGroup().addTo(map);
+
+   async function findNear(latlng) {
+      nearLayer.clearLayers();
+      L.circle(latlng, { radius: 25000, color: '#7c3aed', weight: 2,
+                         fillOpacity: 0.05 }).addTo(nearLayer);
+
+      const url = FACILITIES_URL + '?dist=25000&point=' +
+         latlng.lng + ',' + latlng.lat;
+      const data = await (await fetch(url)).json();
+      const names = data.features.map(f => escapeHtml(f.properties.name));
+
+      L.popup().setLatLng(latlng).setContent(
+         '<strong>' + names.length + ' within 25 km</strong><br>' +
+         (names.join('<br>') || 'none')
+      ).openOn(map);
+   }
+
    map.on('click', function (e) {
       if (currentMode() === 'add') {
          L.popup().setLatLng(e.latlng).setContent(addForm(e.latlng)).openOn(map);
+      } else if (currentMode() === 'near') {
+         findNear(e.latlng);
       }
    });
 </script>
