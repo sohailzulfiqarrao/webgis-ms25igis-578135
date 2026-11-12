@@ -1,39 +1,33 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1">
-   <title>Facilities and districts</title>
+   <title>Facility Finder</title>
+   <link rel="icon" href="{% static 'districts/nust.jpg' %}">
    <link rel="stylesheet"
          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-   <style>
-      body { font-family: system-ui, sans-serif; margin: 0;
-             color: #23373b; background: #f4f6f6; }
-      header { padding: 14px 24px 10px; display: flex; flex-wrap: wrap;
-               align-items: center; gap: 8px 24px; }
-      h1 { margin: 0; font-size: 22px; }
-      .modes { display: flex; gap: 14px; font-size: 14px; }
-      #status { color: #5b6a6e; font-size: 14px; margin-left: auto; }
-      #map { height: calc(100vh - 60px); min-height: 400px; }
-      .add-form label { display: block; margin: 6px 0 2px; font-size: 12px; }
-      .add-form input, .add-form select { width: 180px; }
-      .add-form button { margin-top: 8px; }
-      .error { color: #b42318; font-size: 12px; margin-top: 6px; }
-      /* Chrome draws a focus box around a clicked shape; hide it */
-      .leaflet-interactive:focus { outline: none; }
-   </style>
+   <link rel="stylesheet" href="{% static 'districts/style.css' %}">
 </head>
 <body>
 
 <header>
-   <h1>Facilities</h1>
-   <div class="modes">
-      <label><input type="radio" name="mode" value="look" checked> Look</label>
+   <img class="logo" src="{% static 'districts/nust.jpg' %}" alt="NUST logo: Defining futures">
+   <div class="titles">
+      <h1>Facility Finder</h1>
+      <p class="subtitle">A spatial API for Pakistan: ask for what you can see, add what you find</p>
+   </div>
+</header>
+
+<div id="panel">
+   <div class="modes" role="radiogroup" aria-label="What a click on the map does">
+      <label><input type="radio" name="mode" value="look" checked> Explore</label>
       <label><input type="radio" name="mode" value="add"> Add a facility</label>
-      <label><input type="radio" name="mode" value="near"> Find within 25 km</label>
+      <label><input type="radio" name="mode" value="near"> Find nearby (25 km)</label>
    </div>
    <span id="status">loading...</span>
-</header>
+   <span id="hint" class="hint"></span>
+</div>
 
 <div id="map"></div>
 
@@ -105,9 +99,23 @@
    const colours = { school: '#2563eb', health: '#dc2626',
                      water: '#0891b2', other: '#6b7280' };
 
+   // the facility colours as a legend, bottom left
+   const kindNames = { school: 'School', health: 'Health facility',
+                       water: 'Water point', other: 'Other' };
+   const legend = L.control({ position: 'bottomleft' });
+   legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = '<h4>Facility</h4>' + Object.keys(kindNames).map(function (k) {
+         return '<i style="background:' + colours[k] + '"></i>' + kindNames[k];
+      }).join('<br>');
+      return div;
+   };
+   legend.addTo(map);
+
    function facilityPopup(p) {
       return '<strong>' + escapeHtml(p.name) + '</strong><br>' +
-         escapeHtml(p.kind) + ', in ' + escapeHtml(p.district || 'no district');
+         escapeHtml(kindNames[p.kind] || p.kind) + ' &middot; ' +
+         escapeHtml(p.district || 'outside any district');
    }
 
    const facilityLayer = L.geoJSON(null, {
@@ -136,9 +144,10 @@
    function addForm(latlng) {
       const form = L.DomUtil.create('form', 'add-form');
       form.innerHTML =
-         '<strong>New facility</strong>' +
+         '<strong>Add a facility</strong>' +
          '<label for="f-name">Name</label>' +
-         '<input id="f-name" name="name" required maxlength="100">' +
+         '<input id="f-name" name="name" required maxlength="100" ' +
+            'placeholder="e.g. Basic Health Unit">' +
          '<label for="f-kind">Kind</label>' +
          '<select id="f-kind" name="kind">' +
          '<option value="school">School</option>' +
@@ -146,7 +155,7 @@
          '<option value="water">Water point</option>' +
          '<option value="other">Other</option>' +
          '</select><br>' +
-         '<button type="submit">Save</button>' +
+         '<button type="submit">Save facility</button>' +
          '<div class="error"></div>';
 
       form.addEventListener('submit', async function (event) {
@@ -185,6 +194,19 @@
       return document.querySelector('input[name="mode"]:checked').value;
    }
 
+   // one line that says what a click on the map does in the current mode
+   const hints = {
+      look: 'Click a facility for its details',
+      add: 'Click the map where the facility is',
+      near: 'Click anywhere: PostGIS finds what lies within 25 km'
+   };
+   const hint = document.getElementById('hint');
+   function showHint() { hint.textContent = hints[currentMode()]; }
+   document.querySelectorAll('input[name="mode"]').forEach(function (radio) {
+      radio.addEventListener('change', showHint);
+   });
+   showHint();
+
    const nearLayer = L.layerGroup().addTo(map);
 
    async function findNear(latlng) {
@@ -198,8 +220,9 @@
       const names = data.features.map(f => escapeHtml(f.properties.name));
 
       L.popup().setLatLng(latlng).setContent(
-         '<strong>' + names.length + ' within 25 km</strong><br>' +
-         (names.join('<br>') || 'none')
+         '<strong>' + (names.length || 'No') + ' ' +
+         (names.length === 1 ? 'facility' : 'facilities') + ' within 25 km</strong>' +
+         (names.length ? '<br>' + names.join('<br>') : '')
       ).openOn(map);
    }
 
