@@ -86,12 +86,14 @@
    async function snapshotGet(url) {
       const q = new URL(url, location.href);
       const file = q.pathname.split('/').pop();
+      // keep the request itself, not its result: a second move while the file is still arriving must not download it again
       if (!snapshotFiles[file]) {
-         const all = await (await fetch(file)).json();
-         if (file === 'districts.json') { all.features.forEach(f => { f.bbox = bboxOf(f.geometry); }); }
-         snapshotFiles[file] = all;
+         snapshotFiles[file] = fetch(file).then(r => r.json()).then(function (all) {
+            if (file === 'districts.json') { all.features.forEach(f => { f.bbox = bboxOf(f.geometry); }); }
+            return all;
+         });
       }
-      let features = snapshotFiles[file].features;
+      let features = (await snapshotFiles[file]).features;
       const p = q.searchParams;
       if (p.get('in_bbox')) {
          const [w, s, e, n] = p.get('in_bbox').split(',').map(Number);
