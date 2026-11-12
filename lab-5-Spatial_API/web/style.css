@@ -1,0 +1,239 @@
+/* Lab 5 has its own look: emerald and lime on mint. Lab 1 is blue, Lab 2 teal and orange, Lab 3 indigo, Lab 4 rust
+   and amber, and the landing page navy and gold. Same layout as Labs 2 to 4: header, control panel, map card. */
+body {
+   font-family: system-ui, sans-serif;
+   margin: 0;
+   color: #0f2e22;
+   /* the mint page background shows around the control bar and the map card */
+   background: linear-gradient(160deg, #c9ecd9 0%, #f3fbf6 100%) fixed;
+   /* one column: header, panel, then a map that takes the rest of the window */
+   display: flex;
+   flex-direction: column;
+   height: 100vh;
+}
+
+header {
+   display: grid;
+   grid-template-columns: 1fr auto 1fr;
+   align-items: center;
+   gap: 12px;
+   padding: 12px 24px;
+   color: #fff;
+   background: linear-gradient(135deg, #052e1c 0%, #166534 100%);
+   border-bottom: 5px solid #84cc16;
+}
+
+.logo {
+   height: 64px;
+   padding: 6px 12px;
+   box-sizing: content-box;
+   border-radius: 12px;
+   background: #fff;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+}
+
+.titles { text-align: center; }
+h1 { margin: 0; font-size: 28px; letter-spacing: .03em; }
+.subtitle { margin: 4px 0 0; color: #d3f2dd; }
+
+#panel {
+   display: flex;
+   flex-wrap: wrap;
+   align-items: center;
+   gap: 8px 18px;
+   margin: 14px 16px 0;
+   padding: 10px 20px;
+   background: #fff;
+   border: 1px solid #b6dfc6;
+   border-left: 6px solid #166534;
+   border-radius: 12px;
+   box-shadow: 0 4px 14px rgba(22, 101, 52, .15);
+}
+
+/* the menu: what a click on the map does, as a segmented control */
+.modes {
+   display: inline-flex;
+   flex-wrap: wrap;
+   gap: 4px;
+   padding: 4px;
+   background: #e6f5ec;
+   border: 1px solid #b6dfc6;
+   border-radius: 999px;
+}
+
+.mode {
+   position: relative;
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+   padding: 7px 16px 7px 13px;
+   border-radius: 999px;
+   font-size: 14px;
+   font-weight: 600;
+   color: #14532d;
+   cursor: pointer;
+   transition: background .15s, color .15s, box-shadow .15s;
+}
+
+.mode:hover { background: #cfeadb; }
+
+/* the real radio button stays, invisible, on top of its label: keyboard and screen readers still work */
+.mode input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+
+.mode svg {
+   width: 18px;
+   height: 18px;
+   fill: none;
+   stroke: currentColor;
+   stroke-width: 1.9;
+   stroke-linecap: round;
+   stroke-linejoin: round;
+}
+
+.mode small { font-size: 12px; font-weight: 700; opacity: .75; }
+
+.mode:has(input:checked) {
+   color: #fff;
+   background: linear-gradient(135deg, #166534 0%, #15803d 100%);
+   box-shadow: 0 2px 8px rgba(22, 101, 52, .4);
+}
+
+.mode:has(input:focus-visible) { outline: 2px solid #84cc16; outline-offset: 2px; }
+
+.field { display: flex; align-items: center; gap: 8px; }
+.field label { font-size: 13px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #3f6b55; }
+
+select {
+   font: inherit;
+   font-size: 14px;
+   font-weight: 600;
+   padding: 6px 30px 6px 12px;
+   color: #14532d;
+   background: #f4fbf7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23166534' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center;
+   border: 1px solid #86c4a0;
+   border-radius: 999px;
+   appearance: none;
+   cursor: pointer;
+}
+
+select:hover { border-color: #166534; }
+select:focus-visible, button:focus-visible { outline: 2px solid #84cc16; outline-offset: 1px; }
+
+/* a switch for the yes-or-no choices */
+.toggle { display: inline-flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: #14532d; cursor: pointer; }
+.toggle input {
+   appearance: none;
+   position: relative;
+   width: 38px;
+   height: 22px;
+   margin: 0;
+   border-radius: 999px;
+   background: #b9d6c6;
+   cursor: pointer;
+   transition: background .15s;
+}
+.toggle input::after {
+   content: "";
+   position: absolute;
+   top: 3px;
+   left: 3px;
+   width: 16px;
+   height: 16px;
+   border-radius: 50%;
+   background: #fff;
+   box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+   transition: transform .15s;
+}
+.toggle input:checked { background: #166534; }
+.toggle input:checked::after { transform: translateX(16px); }
+.toggle input:focus-visible { outline: 2px solid #84cc16; outline-offset: 2px; }
+
+/* what the last request brought back */
+.badge {
+   margin-left: auto;
+   padding: 5px 14px;
+   font-size: 13px;
+   font-weight: 700;
+   color: #14532d;
+   background: #ecfccb;
+   border: 1px solid #bef264;
+   border-radius: 999px;
+}
+
+.note { flex-basis: 100%; padding: 5px 12px; font-size: 13px; color: #14532d; background: #ecfccb; border-radius: 8px; }
+
+/* a line break inside the flex panel: the hint and the badge share the second row */
+.break { flex-basis: 100%; height: 0; }
+.hint { flex: 1 1 260px; margin: 0; font-size: 13px; color: #3f6b55; }
+.hint::before {
+   content: "i";
+   display: inline-grid;
+   place-items: center;
+   width: 16px;
+   height: 16px;
+   margin-right: 8px;
+   font: italic 700 11px/1 Georgia, serif;
+   color: #fff;
+   background: #166534;
+   border-radius: 50%;
+}
+
+/* the map fills what the header and panel leave, never under 420 px */
+#map {
+   flex: 1 1 auto;
+   min-height: 420px;
+   margin: 14px 16px 16px;
+   border: 2px solid #166534;
+   border-radius: 14px;
+   box-shadow: 0 8px 24px rgba(22, 101, 52, .22);
+}
+
+/* Chrome draws a focus box around a clicked shape; hide it */
+.leaflet-interactive:focus { outline: none; }
+
+/* the form inside a popup */
+.add-form label { display: block; margin: 6px 0 2px; font-size: 12px; color: #14532d; }
+.add-form input, .add-form select { width: 180px; box-sizing: border-box; }
+.add-form button {
+   margin-top: 8px;
+   padding: 5px 14px;
+   font: inherit;
+   font-weight: 600;
+   color: #fff;
+   background: #166534;
+   border: 0;
+   border-radius: 8px;
+   cursor: pointer;
+}
+.add-form button:hover { background: #14532d; }
+.error { color: #b42318; font-size: 12px; margin-top: 6px; }
+
+/* the distance after a name in the nearby list */
+.dist { margin-left: 4px; padding: 1px 7px; font-size: 12px; font-weight: 700; color: #14532d; background: #ecfccb; border-radius: 999px; white-space: nowrap; }
+
+.legend { background: white; padding: 8px 10px; border-radius: 4px; font-size: 13px; line-height: 1.6; white-space: nowrap;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, .25); max-height: calc(100vh - 380px); overflow-y: auto; }
+.legend h4 { margin: 0 0 4px; font-size: 14px; }
+.legend i.swatch { width: 18px; height: 12px; border-radius: 3px; border: 1px solid rgba(0, 0, 0, .25); box-shadow: none; }
+.legend i { display: inline-block; width: 12px; height: 12px; margin: 0 8px 0 0; vertical-align: -3px; border-radius: 50%;
+            border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .3); }
+
+/* laptop screens and small windows: a slimmer header and tighter gaps keep the map in view */
+@media (max-height: 700px) and (min-width: 641px) {
+   header { padding: 6px 20px; }
+   .logo { height: 40px; padding: 4px 10px; }
+   h1 { font-size: 22px; }
+   .subtitle { margin-top: 2px; font-size: 13px; }
+   #panel { margin-top: 10px; padding: 8px 16px; }
+   #map { margin-top: 10px; margin-bottom: 12px; min-height: 280px; }
+}
+
+@media (max-width: 640px) {
+   body { height: auto; min-height: 100vh; }
+   header { grid-template-columns: 1fr; justify-items: center; gap: 8px; }
+   .logo { height: 48px; }
+   h1 { font-size: 22px; }
+   .badge { margin-left: 0; }
+   #panel, #map { margin-left: 10px; margin-right: 10px; }
+   #map { flex: none; height: 70vh; }
+}

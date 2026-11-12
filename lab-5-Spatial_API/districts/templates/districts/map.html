@@ -51,6 +51,8 @@
       <input type="checkbox" id="shade">
       Shade districts by facility count
    </label>
+   {% if snapshot %}<span class="note">Read-only snapshot of the Django app, exported from PostGIS on {{ exported }}.
+      The filters here run in your browser; in the live app PostGIS runs them. See the Lab 5 report.</span>{% endif %}
    <span class="break"></span>
    <span id="hint" class="hint"></span>
    <span id="status" class="badge">loading...</span>
@@ -61,9 +63,61 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
    // Filled in by Django when it renders the page
-   const DISTRICTS_URL = "{% url 'district-list' %}";
-   const FACILITIES_URL = "{% url 'facility-list' %}";
+   // SNAPSHOT is true only in the static copy for GitHub Pages (python manage.py export_static)
+   const SNAPSHOT = {% if snapshot %}true{% else %}false{% endif %};
+   const DISTRICTS_URL = SNAPSHOT ? "districts.json" : "{% url 'district-list' %}";
+   const FACILITIES_URL = SNAPSHOT ? "facilities.json" : "{% url 'facility-list' %}";
    const CSRF_TOKEN = "{{ csrf_token }}";
+
+   // In the snapshot there is no server, so the three questions the page asks the API
+   // (in_bbox, kind, dist and point) are answered here from the two exported files.
+   const snapshotFiles = {};
+
+   function bboxOf(geometry) {
+      let w = 180, s = 90, e = -180, n = -90;
+      (function walk(c) {
+         if (typeof c[0] === 'number') {
+            w = Math.min(w, c[0]); e = Math.max(e, c[0]); s = Math.min(s, c[1]); n = Math.max(n, c[1]);
+         } else { c.forEach(walk); }
+      })(geometry.coordinates);
+      return [w, s, e, n];
+   }
+
+   async function snapshotGet(url) {
+      const q = new URL(url, location.href);
+      const file = q.pathname.split('/').pop();
+      if (!snapshotFiles[file]) {
+         const all = await (await fetch(file)).json();
+         if (file === 'districts.json') { all.features.forEach(f => { f.bbox = bboxOf(f.geometry); }); }
+         snapshotFiles[file] = all;
+      }
+      let features = snapshotFiles[file].features;
+      const p = q.searchParams;
+      if (p.get('in_bbox')) {
+         const [w, s, e, n] = p.get('in_bbox').split(',').map(Number);
+         features = features.filter(function (f) {
+            if (f.bbox) { return f.bbox[0] <= e && f.bbox[2] >= w && f.bbox[1] <= n && f.bbox[3] >= s; }
+            const [x, y] = f.geometry.coordinates;
+            return x >= w && x <= e && y >= s && y <= n;
+         });
+      }
+      if (p.get('kind')) { features = features.filter(f => f.properties.kind === p.get('kind')); }
+      if (p.get('point')) {
+         const [lng, lat] = p.get('point').split(',').map(Number);
+         const from = L.latLng(lat, lng), reach = Number(p.get('dist') || 1000);
+         features = features
+            .map(f => ({ f: f, d: from.distanceTo(L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0])) }))
+            .filter(x => x.d <= reach).sort((a, b) => a.d - b.d).map(x => x.f);
+      }
+      const body = JSON.stringify({ type: 'FeatureCollection',
+         features: features.map(f => { const { bbox, ...rest } = f; return rest; }) });
+      return { ok: true, status: 200, text: async () => body, json: async () => JSON.parse(body) };
+   }
+
+   // the live page asks the API; the snapshot answers from its files
+   function apiGet(url, options) {
+      return SNAPSHOT ? snapshotGet(url) : fetch(url, options);
+   }
 
    const map = L.map('map', {
       maxBounds: [[21.5, 58.5], [39.0, 80.5]],
@@ -135,8 +189,8 @@
       pending = new AbortController();
 
       try {
-         const response = await fetch(DISTRICTS_URL + '?in_bbox=' + viewBbox(),
-                                      { signal: pending.signal });
+         const response = await apiGet(DISTRICTS_URL + '?in_bbox=' + viewBbox(),
+                                       { signal: pending.signal });
          const text = await response.text();
          const data = JSON.parse(text);
          districtLayer.clearLayers();
@@ -231,8 +285,8 @@
       pendingFacilities = new AbortController();
 
       try {
-         const response = await fetch(FACILITIES_URL + '?in_bbox=' + viewBbox() + kindParam(),
-                                      { signal: pendingFacilities.signal });
+         const response = await apiGet(FACILITIES_URL + '?in_bbox=' + viewBbox() + kindParam(),
+                                       { signal: pendingFacilities.signal });
          const text = await response.text();
          const data = JSON.parse(text);
          facilityLayer.clearLayers();
@@ -277,6 +331,11 @@
             properties: { name: form.elements.name.value,
                           kind: form.elements.kind.value }
          };
+         if (SNAPSHOT) {
+            form.querySelector('.error').textContent =
+               'This is a read-only snapshot. Run the app on your own computer to add facilities.';
+            return;
+         }
          const response = await fetch(FACILITIES_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json',
@@ -325,7 +384,7 @@
 
       const url = FACILITIES_URL + '?dist=25000&point=' +
          latlng.lng + ',' + latlng.lat + kindParam();
-      const data = await (await fetch(url)).json();
+      const data = await (await apiGet(url)).json();
       // The API sends them nearest first; the distance shown is the one on the ground
       const names = data.features.map(function (f) {
          const here = L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);

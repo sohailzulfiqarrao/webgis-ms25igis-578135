@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Facility Finder</title>
+   <link rel="icon" href="nust.jpg">
+   <link rel="stylesheet"
+         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+   <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+   <img class="logo" src="nust.jpg" alt="NUST logo: Defining futures">
+   <div class="titles">
+      <h1>Facility Finder</h1>
+      <p class="subtitle">A spatial API for Pakistan: ask for what you can see, add what you find</p>
+   </div>
+</header>
+
+<div id="panel">
+   <div class="modes" role="radiogroup" aria-label="What a click on the map does">
+      <label class="mode">
+         <input type="radio" name="mode" value="look" checked>
+         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg>
+         <span>Explore</span>
+      </label>
+      <label class="mode">
+         <input type="radio" name="mode" value="add">
+         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.4-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.6 12 21 12 21z"/><path d="M12 8v5.5M9.25 10.75h5.5"/></svg>
+         <span>Add a facility</span>
+      </label>
+      <label class="mode">
+         <input type="radio" name="mode" value="near">
+         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="9.5" stroke-dasharray="2.2 3"/></svg>
+         <span>Find nearby <small>25 km</small></span>
+      </label>
+   </div>
+   <div class="field">
+      <label for="kind">Show</label>
+      <select id="kind">
+         <option value="">All facilities</option>
+         <option value="school">Schools</option>
+         <option value="health">Health facilities</option>
+         <option value="water">Water points</option>
+         <option value="other">Other places</option>
+      </select>
+   </div>
+   <label class="toggle">
+      <input type="checkbox" id="shade">
+      Shade districts by facility count
+   </label>
+   <span class="note">Read-only snapshot of the Django app, exported from PostGIS on 2026-11-12.
+      The filters here run in your browser; in the live app PostGIS runs them. See the Lab 5 report.</span>
+   <span class="break"></span>
+   <span id="hint" class="hint"></span>
+   <span id="status" class="badge">loading...</span>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+   // Filled in by Django when it renders the page
+   // SNAPSHOT is true only in the static copy for GitHub Pages (python manage.py export_static)
+   const SNAPSHOT = true;
+   const DISTRICTS_URL = SNAPSHOT ? "districts.json" : "/api/districts/";
+   const FACILITIES_URL = SNAPSHOT ? "facilities.json" : "/api/facilities/";
+   const CSRF_TOKEN = "";
+
+   // In the snapshot there is no server, so the three questions the page asks the API
+   // (in_bbox, kind, dist and point) are answered here from the two exported files.
+   const snapshotFiles = {};
+
+   function bboxOf(geometry) {
+      let w = 180, s = 90, e = -180, n = -90;
+      (function walk(c) {
+         if (typeof c[0] === 'number') {
+            w = Math.min(w, c[0]); e = Math.max(e, c[0]); s = Math.min(s, c[1]); n = Math.max(n, c[1]);
+         } else { c.forEach(walk); }
+      })(geometry.coordinates);
+      return [w, s, e, n];
+   }
+
+   async function snapshotGet(url) {
+      const q = new URL(url, location.href);
+      const file = q.pathname.split('/').pop();
+      if (!snapshotFiles[file]) {
+         const all = await (await fetch(file)).json();
+         if (file === 'districts.json') { all.features.forEach(f => { f.bbox = bboxOf(f.geometry); }); }
+         snapshotFiles[file] = all;
+      }
+      let features = snapshotFiles[file].features;
+      const p = q.searchParams;
+      if (p.get('in_bbox')) {
+         const [w, s, e, n] = p.get('in_bbox').split(',').map(Number);
+         features = features.filter(function (f) {
+            if (f.bbox) { return f.bbox[0] <= e && f.bbox[2] >= w && f.bbox[1] <= n && f.bbox[3] >= s; }
+            const [x, y] = f.geometry.coordinates;
+            return x >= w && x <= e && y >= s && y <= n;
+         });
+      }
+      if (p.get('kind')) { features = features.filter(f => f.properties.kind === p.get('kind')); }
+      if (p.get('point')) {
+         const [lng, lat] = p.get('point').split(',').map(Number);
+         const from = L.latLng(lat, lng), reach = Number(p.get('dist') || 1000);
+         features = features
+            .map(f => ({ f: f, d: from.distanceTo(L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0])) }))
+            .filter(x => x.d <= reach).sort((a, b) => a.d - b.d).map(x => x.f);
+      }
+      const body = JSON.stringify({ type: 'FeatureCollection',
+         features: features.map(f => { const { bbox, ...rest } = f; return rest; }) });
+      return { ok: true, status: 200, text: async () => body, json: async () => JSON.parse(body) };
+   }
+
+   // the live page asks the API; the snapshot answers from its files
+   function apiGet(url, options) {
+      return SNAPSHOT ? snapshotGet(url) : fetch(url, options);
+   }
+
+   const map = L.map('map', {
+      maxBounds: [[21.5, 58.5], [39.0, 80.5]],
+      maxBoundsViscosity: 1.0,
+      minZoom: 5
+   }).setView([33.6, 73.0], 9);
+
+   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+   }).addTo(map);
+
+   const status = document.getElementById('status');
+
+   const shade = document.getElementById('shade');
+
+   // Facilities per district, in four classes; the API sends facilities_count with every district
+   const SHADES = [
+      { upTo: 0, colour: '#f1faf4', label: 'None' },
+      { upTo: 1, colour: '#bfe8cf', label: '1' },
+      { upTo: 3, colour: '#6fc79b', label: '2 to 3' },
+      { upTo: Infinity, colour: '#1f8f5c', label: '4 or more' }
+   ];
+
+   function shadeOf(count) {
+      return SHADES.find(s => count <= s.upTo);
+   }
+
+   function districtStyle(feature) {
+      if (!shade.checked) {
+         return { color: '#0f766e', weight: 1, fillColor: '#99d5cc', fillOpacity: 0.25 };
+      }
+      return { color: '#0f766e', weight: 1, fillOpacity: 0.8,
+               fillColor: shadeOf(feature.properties.facilities_count).colour };
+   }
+
+   const districtLayer = L.geoJSON(null, {
+      style: districtStyle,
+      onEachFeature: function (feature, layer) {
+         const n = feature.properties.facilities_count;
+         layer.bindTooltip(feature.properties.name + ' · ' + n +
+                           (n === 1 ? ' facility' : ' facilities'), { sticky: true });
+      }
+   }).addTo(map);
+
+   let pending = null;
+
+   // west,south,east,north of the current view: longitude first, as in GeoJSON
+   function viewBbox() {
+      const b = map.getBounds();
+      return [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
+         .map(n => n.toFixed(4)).join(',');
+   }
+
+   // each view asks for two things; the status line reports both answers
+   const lastView = { districts: null, facilities: null };
+
+   function showStatus() {
+      const d = lastView.districts, f = lastView.facilities;
+      if (!d) return;
+      status.textContent = d.count + ' districts' +
+         (f ? ' and ' + f.count + ' facilities' : '') + ' in view, ' +
+         (d.kb + (f ? f.kb : 0)) + ' KB';
+   }
+
+   async function loadDistrictsInView() {
+      // A newer view replaces an older request that has not finished
+      if (pending) pending.abort();
+      pending = new AbortController();
+
+      try {
+         const response = await apiGet(DISTRICTS_URL + '?in_bbox=' + viewBbox(),
+                                       { signal: pending.signal });
+         const text = await response.text();
+         const data = JSON.parse(text);
+         districtLayer.clearLayers();
+         districtLayer.addData(data);
+         lastView.districts = { count: data.features.length,
+                                kb: Math.round(text.length / 1024) };
+         showStatus();
+      } catch (err) {
+         if (err.name !== 'AbortError') console.error(err);
+      }
+   }
+
+   map.on('moveend', loadDistrictsInView);
+   loadDistrictsInView();
+
+   map.createPane('facilities');
+   map.getPane('facilities').style.zIndex = 450;
+
+   // Anything a user typed must be escaped before it goes into HTML
+   function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+   }
+
+   const colours = { school: '#2563eb', health: '#dc2626',
+                     water: '#0891b2', other: '#6b7280' };
+
+   // the facility colours as a legend, bottom left
+   const kindNames = { school: 'School', health: 'Health facility',
+                       water: 'Water point', other: 'Other' };
+   const legend = L.control({ position: 'bottomleft' });
+   legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = '<h4>Facility</h4>' + Object.keys(kindNames).map(function (k) {
+         return '<i style="background:' + colours[k] + '"></i>' + kindNames[k];
+      }).join('<br>');
+      return div;
+   };
+   legend.addTo(map);
+
+   // the shading has its own legend, shown only while the switch is on
+   const shadeLegend = L.control({ position: 'bottomright' });
+   shadeLegend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = '<h4>Facilities per district</h4>' + SHADES.map(function (s) {
+         return '<i class="swatch" style="background:' + s.colour + '"></i>' + s.label;
+      }).join('<br>');
+      return div;
+   };
+
+   shade.addEventListener('change', function () {
+      districtLayer.setStyle(districtStyle);
+      if (shade.checked) { shadeLegend.addTo(map); } else { shadeLegend.remove(); }
+   });
+
+   function facilityPopup(p) {
+      return '<strong>' + escapeHtml(p.name) + '</strong><br>' +
+         escapeHtml(kindNames[p.kind] || p.kind) + ' &middot; ' +
+         escapeHtml(p.district || 'outside any district');
+   }
+
+   const facilityLayer = L.geoJSON(null, {
+      pointToLayer: function (feature, latlng) {
+         return L.circleMarker(latlng, {
+            pane: 'facilities',
+            bubblingMouseEvents: false,   // a click here is not a map click
+            radius: 7,
+            color: '#ffffff',
+            weight: 2,
+            fillColor: colours[feature.properties.kind] || colours.other,
+            fillOpacity: 0.95
+         });
+      },
+      onEachFeature: function (feature, layer) {
+         layer.bindPopup(facilityPopup(feature.properties));
+      }
+   }).addTo(map);
+
+   // The "Show" menu filters on the server: ?kind=health is added to every facility request
+   const kindMenu = document.getElementById('kind');
+
+   function kindParam() {
+      return kindMenu.value ? '&kind=' + encodeURIComponent(kindMenu.value) : '';
+   }
+
+   // Facilities load by view too, so the map keeps working with ten thousand of them
+   let pendingFacilities = null;
+
+   async function loadFacilitiesInView() {
+      if (pendingFacilities) pendingFacilities.abort();
+      pendingFacilities = new AbortController();
+
+      try {
+         const response = await apiGet(FACILITIES_URL + '?in_bbox=' + viewBbox() + kindParam(),
+                                       { signal: pendingFacilities.signal });
+         const text = await response.text();
+         const data = JSON.parse(text);
+         facilityLayer.clearLayers();
+         facilityLayer.addData(data);
+         lastView.facilities = { count: data.features.length,
+                                 kb: Math.round(text.length / 1024) };
+         showStatus();
+      } catch (err) {
+         if (err.name !== 'AbortError') console.error(err);
+      }
+   }
+
+   map.on('moveend', loadFacilitiesInView);
+   kindMenu.addEventListener('change', loadFacilitiesInView);
+   loadFacilitiesInView();
+
+   function addForm(latlng) {
+      const form = L.DomUtil.create('form', 'add-form');
+      form.innerHTML =
+         '<strong>Add a facility</strong>' +
+         '<label for="f-name">Name</label>' +
+         '<input id="f-name" name="name" required maxlength="100" ' +
+            'placeholder="e.g. Basic Health Unit">' +
+         '<label for="f-kind">Kind</label>' +
+         '<select id="f-kind" name="kind">' +
+         '<option value="school">School</option>' +
+         '<option value="health">Health facility</option>' +
+         '<option value="water">Water point</option>' +
+         '<option value="other">Other</option>' +
+         '</select><br>' +
+         '<button type="submit">Save facility</button>' +
+         '<div class="error"></div>';
+
+      form.addEventListener('submit', async function (event) {
+         event.preventDefault();
+         // Five decimal places is about a metre (Lab 2, Part 2)
+         const lng = Number(latlng.lng.toFixed(5));
+         const lat = Number(latlng.lat.toFixed(5));
+         const feature = {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [lng, lat] },
+            properties: { name: form.elements.name.value,
+                          kind: form.elements.kind.value }
+         };
+         if (SNAPSHOT) {
+            form.querySelector('.error').textContent =
+               'This is a read-only snapshot. Run the app on your own computer to add facilities.';
+            return;
+         }
+         const response = await fetch(FACILITIES_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json',
+                       'X-CSRFToken': CSRF_TOKEN },
+            body: JSON.stringify(feature)
+         });
+         const answer = await response.json();
+         if (response.status === 201) {
+            facilityLayer.addData(answer);
+            loadDistrictsInView();   // the district's count has just gone up
+            map.closePopup();
+            status.textContent = 'Saved ' + answer.properties.name +
+               ', in ' + answer.properties.district;
+         } else {
+            // Show each field's error message from the API
+            form.querySelector('.error').textContent =
+               Object.values(answer).flat().join(' ');
+         }
+      });
+      return form;
+   }
+
+   function currentMode() {
+      return document.querySelector('input[name="mode"]:checked').value;
+   }
+
+   // one line that says what a click on the map does in the current mode
+   const hints = {
+      look: 'Click a facility for its details',
+      add: 'Click the map where the facility is',
+      near: 'Click anywhere: PostGIS finds what lies within 25 km'
+   };
+   const hint = document.getElementById('hint');
+   function showHint() { hint.textContent = hints[currentMode()]; }
+   document.querySelectorAll('input[name="mode"]').forEach(function (radio) {
+      radio.addEventListener('change', showHint);
+   });
+   showHint();
+
+   const nearLayer = L.layerGroup().addTo(map);
+
+   async function findNear(latlng) {
+      nearLayer.clearLayers();
+      L.circle(latlng, { radius: 25000, color: '#7c3aed', weight: 2,
+                         fillOpacity: 0.05 }).addTo(nearLayer);
+
+      const url = FACILITIES_URL + '?dist=25000&point=' +
+         latlng.lng + ',' + latlng.lat + kindParam();
+      const data = await (await apiGet(url)).json();
+      // The API sends them nearest first; the distance shown is the one on the ground
+      const names = data.features.map(function (f) {
+         const here = L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
+         const km = latlng.distanceTo(here) / 1000;
+         return escapeHtml(f.properties.name) +
+            ' <span class="dist">' + km.toFixed(1) + ' km</span>';
+      });
+
+      L.popup().setLatLng(latlng).setContent(
+         '<strong>' + (names.length || 'No') + ' ' +
+         (names.length === 1 ? 'facility' : 'facilities') + ' within 25 km</strong>' +
+         (names.length ? ', nearest first<br>' + names.join('<br>') : '')
+      ).openOn(map);
+   }
+
+   map.on('click', function (e) {
+      if (currentMode() === 'add') {
+         L.popup().setLatLng(e.latlng).setContent(addForm(e.latlng)).openOn(map);
+      } else if (currentMode() === 'near') {
+         findNear(e.latlng);
+      }
+   });
+</script>
+</body>
+</html>

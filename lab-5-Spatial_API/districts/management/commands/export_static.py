@@ -5,10 +5,12 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.core.serializers import serialize
 from django.template.loader import render_to_string
 
-from districts.models import District
+from districts.views import DistrictViewSet
+from districts.serializers import DistrictSerializer
+from facilities.models import Facility
+from facilities.serializers import FacilitySerializer
 
 
 def rounded(coordinates, places=5):
@@ -19,7 +21,7 @@ def rounded(coordinates, places=5):
 
 
 class Command(BaseCommand):
-    help = "Write a static copy of the map page and its data to web/, for GitHub Pages."
+    help = "Write a static, read-only copy of the map page and the API's data to web/, for GitHub Pages."
 
     def handle(self, *args, **options):
         out = Path(settings.BASE_DIR) / "web"
@@ -35,21 +37,20 @@ class Command(BaseCommand):
         with open(out / "index.html", "w", encoding="utf-8", newline="\n") as f:
             f.write(html)
 
-        # the GeoJSON that /api/districts/ returns, coordinates rounded to 5 decimals (about 1 m)
-        data = json.loads(serialize(
-            "geojson",
-            District.objects.all(),
-            geometry_field="geom",
-            fields=["name", "province", "pop_2023", "area_km2"],
-        ))
-        for feature in data["features"]:
+        # what /api/districts/ and /api/facilities/ send, from the same serializers (with facilities_count and district)
+        districts = json.loads(json.dumps(DistrictSerializer(DistrictViewSet.queryset, many=True).data))
+        for feature in districts["features"]:
             feature["geometry"]["coordinates"] = rounded(feature["geometry"]["coordinates"])
         with open(out / "districts.json", "w", encoding="utf-8", newline="\n") as f:
-            json.dump(data, f, separators=(",", ":"))
+            json.dump(districts, f, separators=(",", ":"))
+
+        facilities = json.loads(json.dumps(FacilitySerializer(Facility.objects.order_by("id"), many=True).data))
+        with open(out / "facilities.json", "w", encoding="utf-8", newline="\n") as f:
+            json.dump(facilities, f, separators=(",", ":"))
 
         static = Path(__file__).resolve().parents[2] / "static" / "districts"
         for name in ("style.css", "nust.jpg"):
             shutil.copy(static / name, out / name)
 
-        self.stdout.write(f"wrote {out}: index.html, districts.json "
-                          f"({District.objects.count()} districts), style.css, nust.jpg")
+        self.stdout.write(f"wrote {out}: index.html, districts.json ({len(districts['features'])} districts), "
+                          f"facilities.json ({len(facilities['features'])} facilities), style.css, nust.jpg")
