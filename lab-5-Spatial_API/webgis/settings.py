@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'rest_framework_gis',
     'django_filters',
     'districts',
+    'facilities',
 ]
 
 MIDDLEWARE = [
