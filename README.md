@@ -17,6 +17,7 @@ Laboratory work for the Web GIS course, MS Remote Sensing and GIS, Institute of 
 | 02 – District Explorer | [`lab-2-district-explorer/`](lab-2-district-explorer/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-2-district-explorer/) | [report](lab-2-district-explorer/report.md) |
 | 03 – District Dashboard | [`lab-3-district-dashboard/`](lab-3-district-dashboard/) | [open](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-3-district-dashboard/) | [report](lab-3-district-dashboard/report.md) |
 | 04 – GeoDjango with PostGIS | [`lab-4-GeoDjango_Getting_Started/`](lab-4-GeoDjango_Getting_Started/) | [snapshot](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-4-GeoDjango_Getting_Started/web/) (the app runs locally) | [report](lab-4-GeoDjango_Getting_Started/report.md) |
+| 05 – A Spatial API | [`lab-5-Spatial_API/`](lab-5-Spatial_API/) | [snapshot](https://sohailzulfiqarrao.github.io/webgis-ms25igis-578135/lab-5-Spatial_API/web/) (the app runs locally) | [report](lab-5-Spatial_API/report.md) |
 
 ## Layout
 
@@ -38,6 +39,8 @@ lab-3-district-dashboard/   Lab 03: layers, controls and interaction
     each of the last two: index.html  style.css  app.js  data/  images/  report.md
 lab-4-GeoDjango_Getting_Started/   Lab 04: Django, PostGIS, admin panel and Leaflet
     manage.py  webgis/  districts/  data/  images/  web/ (static snapshot)  report.md
+lab-5-Spatial_API/          Lab 05: Django REST Framework API, facilities and the Facility Finder map
+    manage.py  webgis/  districts/  facilities/  data/  images/  web/ (read-only snapshot)  report.md
 ```
 
 Each new lab gets its own folder and a new card on the landing page.
@@ -72,8 +75,9 @@ Then open:
 | Lab 02 – District Explorer | `http://127.0.0.1:5500/lab-2-district-explorer/` |
 | Lab 03 – District Dashboard | `http://127.0.0.1:5500/lab-3-district-dashboard/` |
 | Lab 04 – snapshot of the Django map | `http://127.0.0.1:5500/lab-4-GeoDjango_Getting_Started/web/` |
+| Lab 05 – snapshot of the Facility Finder | `http://127.0.0.1:5500/lab-5-Spatial_API/web/` |
 
-### Lab 04 runs a real server
+### Labs 04 and 05 run a real server
 
 The live Lab 04 app needs Python, PostgreSQL with PostGIS and the GDAL libraries, so it cannot run from Live Server
 or GitHub Pages. The `web/` folder is only a snapshot of it. To run the app itself, from
@@ -91,6 +95,10 @@ python manage.py runserver
 
 Then open `http://127.0.0.1:8000/` (map) and `http://127.0.0.1:8000/admin/` (admin). The full steps, including
 creating the `webgis` database, are in [that lab's README](lab-4-GeoDjango_Getting_Started/README.md).
+
+Lab 05 uses the same database and the same steps, from `lab-5-Spatial_API/` (no loading is needed, the districts are
+already there): `python manage.py migrate`, then `python manage.py runserver`. Its map is at `http://127.0.0.1:8000/` and its
+API starts at `http://127.0.0.1:8000/api/`. See [that lab's README](lab-5-Spatial_API/README.md).
 
 ---
 **Author:** Sohail Zulfiqar, MS GIS & Remote Sensing
