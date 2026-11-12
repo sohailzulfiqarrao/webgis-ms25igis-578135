@@ -221,14 +221,30 @@
    const colours = { school: '#2563eb', health: '#dc2626',
                      water: '#0891b2', other: '#6b7280' };
 
-   // the facility colours as a legend, bottom left
    const kindNames = { school: 'School', health: 'Health facility',
                        water: 'Water point', other: 'Other' };
+
+   // What is drawn inside a pin: a cross for health, a mortarboard for schools, a drop for water, a star for the rest
+   const glyphs = {
+      health: '<path d="M12 6.5v11M6.5 12h11"/>',
+      school: '<path d="M2.8 9.6 12 5l9.2 4.6L12 14.2 2.8 9.6z"/><path d="M6.6 12v4.2c0 1.1 2.5 2.3 5.4 2.3s5.4-1.2 5.4-2.3V12"/>',
+      water: '<path d="M12 4.6s5.4 5.3 5.4 9a5.4 5.4 0 0 1-10.8 0c0-3.7 5.4-9 5.4-9z"/>',
+      other: '<path d="m12 5.4 2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z"/>'
+   };
+
+   // A facility pin: a coloured disc with a white ring and a faint halo, the symbol of its kind inside
+   function pinHtml(kind, small) {
+      const k = colours[kind] ? kind : 'other';
+      return '<span class="pin' + (small ? ' pin-small' : '') + '" style="--c:' + colours[k] + '">' +
+         '<svg viewBox="0 0 24 24" aria-hidden="true">' + glyphs[k] + '</svg></span>';
+   }
+
+   // the facility pins as a legend, bottom left
    const legend = L.control({ position: 'bottomleft' });
    legend.onAdd = function () {
       const div = L.DomUtil.create('div', 'legend');
       div.innerHTML = '<h4>Facility</h4>' + Object.keys(kindNames).map(function (k) {
-         return '<i style="background:' + colours[k] + '"></i>' + kindNames[k];
+         return pinHtml(k, true) + kindNames[k];
       }).join('<br>');
       return div;
    };
@@ -255,16 +271,35 @@
          escapeHtml(p.district || 'outside any district');
    }
 
+   // Pins are HTML elements: fine for hundreds, heavy for thousands. When more than 500
+   // facilities are in view the map draws small plain dots instead, and the pins come back as you zoom in.
+   let dense = false;
+
    const facilityLayer = L.geoJSON(null, {
       pointToLayer: function (feature, latlng) {
-         return L.circleMarker(latlng, {
+         if (dense) {
+            return L.circleMarker(latlng, {
+               pane: 'facilities',
+               bubblingMouseEvents: false,
+               radius: 5,
+               color: '#ffffff',
+               weight: 1.5,
+               fillColor: colours[feature.properties.kind] || colours.other,
+               fillOpacity: 0.95
+            });
+         }
+         return L.marker(latlng, {
             pane: 'facilities',
             bubblingMouseEvents: false,   // a click here is not a map click
-            radius: 7,
-            color: '#ffffff',
-            weight: 2,
-            fillColor: colours[feature.properties.kind] || colours.other,
-            fillOpacity: 0.95
+            title: feature.properties.name,
+            riseOnHover: true,
+            icon: L.divIcon({
+               className: 'facility-icon',
+               html: pinHtml(feature.properties.kind),
+               iconSize: [30, 30],
+               iconAnchor: [15, 15],
+               popupAnchor: [0, -17]
+            })
          });
       },
       onEachFeature: function (feature, layer) {
@@ -292,6 +327,7 @@
          const text = await response.text();
          const data = JSON.parse(text);
          facilityLayer.clearLayers();
+         dense = data.features.length > 500;
          facilityLayer.addData(data);
          lastView.facilities = { count: data.features.length,
                                  kb: Math.round(text.length / 1024) };

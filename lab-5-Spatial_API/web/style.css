@@ -213,6 +213,27 @@ select:focus-visible, button:focus-visible { outline: 2px solid #84cc16; outline
 
 .legend { background: white; padding: 8px 10px; border-radius: 4px; font-size: 13px; line-height: 1.6; white-space: nowrap;
           box-shadow: 0 1px 4px rgba(0, 0, 0, .25); max-height: calc(100vh - 380px); overflow-y: auto; }
+/* a facility pin: disc in the colour of its kind, white ring, faint halo, a white symbol inside */
+.pin {
+   display: grid;
+   place-items: center;
+   box-sizing: border-box;
+   width: 30px;
+   height: 30px;
+   border: 3px solid #fff;
+   border-radius: 50%;
+   background: var(--c);
+   box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 32%, transparent), 0 3px 8px rgba(0, 0, 0, .35);
+   transition: transform .12s;
+}
+.pin svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.facility-icon:hover .pin { transform: scale(1.14); }
+.facility-icon { background: none; border: 0; }
+
+.legend .pin-small { display: inline-grid; width: 20px; height: 20px; margin: 0 9px 0 0; vertical-align: middle; border-width: 2px;
+                     box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 28%, transparent); }
+.legend .pin-small svg { width: 11px; height: 11px; stroke-width: 2.4; }
+
 .legend h4 { margin: 0 0 4px; font-size: 14px; }
 .legend i.swatch { width: 18px; height: 12px; border-radius: 3px; border: 1px solid rgba(0, 0, 0, .25); box-shadow: none; }
 .legend i { display: inline-block; width: 12px; height: 12px; margin: 0 8px 0 0; vertical-align: -3px; border-radius: 50%;
