@@ -230,9 +230,32 @@ select:focus-visible, button:focus-visible { outline: 2px solid #84cc16; outline
 .facility-icon:hover .pin { transform: scale(1.14); }
 .facility-icon { background: none; border: 0; }
 
-.legend .pin-small { display: inline-grid; width: 20px; height: 20px; margin: 0 9px 0 0; vertical-align: middle; border-width: 2px;
+.legend .pin-small, .info .pin-small { display: inline-grid; width: 20px; height: 20px; margin: 0 9px 0 0; vertical-align: middle; border-width: 2px;
                      box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 28%, transparent); }
-.legend .pin-small svg { width: 11px; height: 11px; stroke-width: 2.4; }
+.legend .pin-small svg, .info .pin-small svg { width: 11px; height: 11px; stroke-width: 2.4; }
+
+/* info windows: a title, then a table */
+.info { min-width: 220px; }
+.info-title { margin: 0 0 8px; font-size: 16px; line-height: 1.25; color: #14532d; }
+.info-title small { font-size: 12px; font-weight: 600; color: #3f6b55; }
+.info-empty { margin: 0 !important; font-size: 13px; color: #3f6b55; }
+
+.info-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.info-table th, .info-table td { padding: 6px 8px; text-align: left; vertical-align: middle; }
+.info-table tr + tr th, .info-table tr + tr td, .info-list tbody td { border-top: 1px solid #e1efe6; }
+
+/* one facility: names in the first column, values in the second */
+.info-table th[scope="row"] { width: 1%; padding-left: 0; font-size: 12px; font-weight: 700; letter-spacing: .03em;
+                              text-transform: uppercase; white-space: nowrap; color: #3f6b55; }
+.info-table td { color: #0f2e22; }
+
+/* the nearby list: a header row, zebra stripes, numbers on the right */
+.info-list thead th { padding-top: 4px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+                      color: #14532d; border-bottom: 2px solid #166534; }
+.info-list tbody tr:nth-child(even) { background: #f4fbf7; }
+.info-list .num { text-align: right; font-variant-numeric: tabular-nums; }
+.info-list .kind { white-space: nowrap; }
+.info-list td .dist { margin-left: 0; }
 
 .legend h4 { margin: 0 0 4px; font-size: 14px; }
 .legend i.swatch { width: 18px; height: 12px; border-radius: 3px; border: 1px solid rgba(0, 0, 0, .25); box-shadow: none; }

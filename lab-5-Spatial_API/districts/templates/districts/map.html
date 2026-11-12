@@ -265,15 +265,43 @@
       if (shade.checked) { shadeLegend.addTo(map); } else { shadeLegend.remove(); }
    });
 
-   function facilityPopup(p) {
-      return '<strong>' + escapeHtml(p.name) + '</strong><br>' +
-         escapeHtml(kindNames[p.kind] || p.kind) + ' &middot; ' +
-         escapeHtml(p.district || 'outside any district');
+   // The info windows are tables. Everything that comes from the API goes through escapeHtml first.
+   const kindShort = { school: 'School', health: 'Health', water: 'Water', other: 'Other' };
+
+   function formatDate(iso) {
+      const d = new Date(iso);
+      return isNaN(d) ? 'not recorded'
+         : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+   }
+
+   function formatPosition(coordinates) {
+      const lng = coordinates[0], lat = coordinates[1];
+      return Math.abs(lat).toFixed(4) + '° ' + (lat >= 0 ? 'N' : 'S') + ', ' +
+             Math.abs(lng).toFixed(4) + '° ' + (lng >= 0 ? 'E' : 'W');
+   }
+
+   // one facility: its name, then a table of its details
+   function facilityPopup(feature) {
+      const p = feature.properties;
+      const rows = [
+         ['Kind', pinHtml(p.kind, true) + escapeHtml(kindNames[p.kind] || p.kind)],
+         ['District', escapeHtml(p.district || 'outside any district')],
+         ['Added', escapeHtml(formatDate(p.added))],
+         ['Position', escapeHtml(formatPosition(feature.geometry.coordinates))]
+      ];
+      return '<div class="info"><h3 class="info-title">' + escapeHtml(p.name) + '</h3>' +
+         '<table class="info-table">' + rows.map(function (r) {
+            return '<tr><th scope="row">' + r[0] + '</th><td>' + r[1] + '</td></tr>';
+         }).join('') + '</table></div>';
    }
 
    // Pins are HTML elements: fine for hundreds, heavy for thousands. When more than 500
    // facilities are in view the map draws small plain dots instead, and the pins come back as you zoom in.
    let dense = false;
+
+   // The markers on the map by facility id. A new view only adds and removes the difference, so a popup
+   // that is open stays open when opening it makes the map pan.
+   const shown = new Map();
 
    const facilityLayer = L.geoJSON(null, {
       pointToLayer: function (feature, latlng) {
@@ -303,7 +331,8 @@
          });
       },
       onEachFeature: function (feature, layer) {
-         layer.bindPopup(facilityPopup(feature.properties));
+         layer.bindPopup(facilityPopup(feature), { minWidth: 230 });
+         shown.set(feature.id, layer);
       }
    }).addTo(map);
 
@@ -326,9 +355,17 @@
                                        { signal: pendingFacilities.signal });
          const text = await response.text();
          const data = JSON.parse(text);
-         facilityLayer.clearLayers();
-         dense = data.features.length > 500;
-         facilityLayer.addData(data);
+         const nowDense = data.features.length > 500;
+         if (nowDense !== dense) {              // pins and dots are different kinds of layer: start again
+            facilityLayer.clearLayers(); shown.clear(); dense = nowDense;
+         }
+         const wanted = new Set(data.features.map(f => f.id));
+         shown.forEach(function (layer, id) {
+            if (!wanted.has(id)) { facilityLayer.removeLayer(layer); shown.delete(id); }
+         });
+         data.features.forEach(function (f) {
+            if (!shown.has(f.id)) { facilityLayer.addData(f); }
+         });
          lastView.facilities = { count: data.features.length,
                                  kb: Math.round(text.length / 1024) };
          showStatus();
@@ -424,17 +461,32 @@
          latlng.lng + ',' + latlng.lat + kindParam();
       const data = await (await apiGet(url)).json();
       // The API sends them nearest first; the distance shown is the one on the ground
-      const names = data.features.map(function (f) {
-         const here = L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
-         const km = latlng.distanceTo(here) / 1000;
-         return escapeHtml(f.properties.name) +
-            ' <span class="dist">' + km.toFixed(1) + ' km</span>';
-      });
+      // The API orders by distance in degrees, which is close but not exact; the few results are
+      // put in the exact order here, because the table shows a rank and the distance on the ground.
+      const rows = data.features
+         .map(function (f) {
+            const here = L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
+            return { f: f, km: latlng.distanceTo(here) / 1000 };
+         })
+         .sort(function (a, b) { return a.km - b.km; })
+         .map(function (r, i) {
+            return '<tr><td class="num">' + (i + 1) + '</td>' +
+               '<td>' + escapeHtml(r.f.properties.name) + '</td>' +
+               '<td class="kind">' + pinHtml(r.f.properties.kind, true) +
+                  escapeHtml(kindShort[r.f.properties.kind] || r.f.properties.kind) + '</td>' +
+               '<td class="num"><span class="dist">' + r.km.toFixed(1) + ' km</span></td></tr>';
+         });
 
-      L.popup().setLatLng(latlng).setContent(
-         '<strong>' + (names.length || 'No') + ' ' +
-         (names.length === 1 ? 'facility' : 'facilities') + ' within 25 km</strong>' +
-         (names.length ? ', nearest first<br>' + names.join('<br>') : '')
+      const title = (rows.length || 'No') + ' ' +
+         (rows.length === 1 ? 'facility' : 'facilities') + ' within 25 km';
+      const table = rows.length
+         ? '<table class="info-table info-list"><thead><tr><th>#</th><th>Facility</th>' +
+           '<th>Kind</th><th>Distance</th></tr></thead><tbody>' + rows.join('') + '</tbody></table>'
+         : '<p class="info-empty">Nothing in this circle. Try another spot, or set Show to All facilities.</p>';
+
+      L.popup({ maxWidth: 480 }).setLatLng(latlng).setContent(
+         '<div class="info"><h3 class="info-title">' + title +
+         (rows.length ? ' <small>nearest first</small>' : '') + '</h3>' + table + '</div>'
       ).openOn(map);
    }
 
