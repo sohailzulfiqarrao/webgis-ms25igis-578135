@@ -72,24 +72,39 @@
 
    let pending = null;
 
+   // west,south,east,north of the current view: longitude first, as in GeoJSON
+   function viewBbox() {
+      const b = map.getBounds();
+      return [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
+         .map(n => n.toFixed(4)).join(',');
+   }
+
+   // each view asks for two things; the status line reports both answers
+   const lastView = { districts: null, facilities: null };
+
+   function showStatus() {
+      const d = lastView.districts, f = lastView.facilities;
+      if (!d) return;
+      status.textContent = d.count + ' districts' +
+         (f ? ' and ' + f.count + ' facilities' : '') + ' in view, ' +
+         (d.kb + (f ? f.kb : 0)) + ' KB';
+   }
+
    async function loadDistrictsInView() {
       // A newer view replaces an older request that has not finished
       if (pending) pending.abort();
       pending = new AbortController();
 
-      const b = map.getBounds();
-      const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
-         .map(n => n.toFixed(4)).join(',');
-
       try {
-         const response = await fetch(DISTRICTS_URL + '?in_bbox=' + bbox,
+         const response = await fetch(DISTRICTS_URL + '?in_bbox=' + viewBbox(),
                                       { signal: pending.signal });
          const text = await response.text();
          const data = JSON.parse(text);
          districtLayer.clearLayers();
          districtLayer.addData(data);
-         status.textContent = data.features.length + ' districts in view, ' +
-            Math.round(text.length / 1024) + ' KB';
+         lastView.districts = { count: data.features.length,
+                                kb: Math.round(text.length / 1024) };
+         showStatus();
       } catch (err) {
          if (err.name !== 'AbortError') console.error(err);
       }
@@ -147,11 +162,30 @@
       }
    }).addTo(map);
 
-   async function loadFacilities() {
-      const response = await fetch(FACILITIES_URL);
-      facilityLayer.addData(await response.json());
+   // Facilities load by view too, so the map keeps working with ten thousand of them
+   let pendingFacilities = null;
+
+   async function loadFacilitiesInView() {
+      if (pendingFacilities) pendingFacilities.abort();
+      pendingFacilities = new AbortController();
+
+      try {
+         const response = await fetch(FACILITIES_URL + '?in_bbox=' + viewBbox(),
+                                      { signal: pendingFacilities.signal });
+         const text = await response.text();
+         const data = JSON.parse(text);
+         facilityLayer.clearLayers();
+         facilityLayer.addData(data);
+         lastView.facilities = { count: data.features.length,
+                                 kb: Math.round(text.length / 1024) };
+         showStatus();
+      } catch (err) {
+         if (err.name !== 'AbortError') console.error(err);
+      }
    }
-   loadFacilities();
+
+   map.on('moveend', loadFacilitiesInView);
+   loadFacilitiesInView();
 
    function addForm(latlng) {
       const form = L.DomUtil.create('form', 'add-form');
