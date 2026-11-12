@@ -160,7 +160,9 @@ select:focus-visible, button:focus-visible { outline: 2px solid #84cc16; outline
    border-radius: 999px;
 }
 
-.hint { flex-basis: 100%; margin: 0; font-size: 13px; color: #3f6b55; }
+/* a line break inside the flex panel: the hint and the badge share the second row */
+.break { flex-basis: 100%; height: 0; }
+.hint { flex: 1 1 260px; margin: 0; font-size: 13px; color: #3f6b55; }
 .hint::before {
    content: "i";
    display: inline-grid;
@@ -207,8 +209,19 @@ select:focus-visible, button:focus-visible { outline: 2px solid #84cc16; outline
 .legend { background: white; padding: 8px 10px; border-radius: 4px; font-size: 13px; line-height: 1.6; white-space: nowrap;
           box-shadow: 0 1px 4px rgba(0, 0, 0, .25); max-height: calc(100vh - 380px); overflow-y: auto; }
 .legend h4 { margin: 0 0 4px; font-size: 14px; }
+.legend i.swatch { width: 18px; height: 12px; border-radius: 3px; border: 1px solid rgba(0, 0, 0, .25); box-shadow: none; }
 .legend i { display: inline-block; width: 12px; height: 12px; margin: 0 8px 0 0; vertical-align: -3px; border-radius: 50%;
             border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .3); }
+
+/* laptop screens and small windows: a slimmer header and tighter gaps keep the map in view */
+@media (max-height: 700px) and (min-width: 641px) {
+   header { padding: 6px 20px; }
+   .logo { height: 40px; padding: 4px 10px; }
+   h1 { font-size: 22px; }
+   .subtitle { margin-top: 2px; font-size: 13px; }
+   #panel { margin-top: 10px; padding: 8px 16px; }
+   #map { margin-top: 10px; margin-bottom: 12px; min-height: 280px; }
+}
 
 @media (max-width: 640px) {
    body { height: auto; min-height: 100vh; }

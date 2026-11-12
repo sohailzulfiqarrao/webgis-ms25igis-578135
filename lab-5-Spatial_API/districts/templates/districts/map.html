@@ -47,8 +47,13 @@
          <option value="other">Other places</option>
       </select>
    </div>
-   <span id="status" class="badge">loading...</span>
+   <label class="toggle">
+      <input type="checkbox" id="shade">
+      Shade districts by facility count
+   </label>
+   <span class="break"></span>
    <span id="hint" class="hint"></span>
+   <span id="status" class="badge">loading...</span>
 </div>
 
 <div id="map"></div>
@@ -73,10 +78,34 @@
 
    const status = document.getElementById('status');
 
+   const shade = document.getElementById('shade');
+
+   // Facilities per district, in four classes; the API sends facilities_count with every district
+   const SHADES = [
+      { upTo: 0, colour: '#f1faf4', label: 'None' },
+      { upTo: 1, colour: '#bfe8cf', label: '1' },
+      { upTo: 3, colour: '#6fc79b', label: '2 to 3' },
+      { upTo: Infinity, colour: '#1f8f5c', label: '4 or more' }
+   ];
+
+   function shadeOf(count) {
+      return SHADES.find(s => count <= s.upTo);
+   }
+
+   function districtStyle(feature) {
+      if (!shade.checked) {
+         return { color: '#0f766e', weight: 1, fillColor: '#99d5cc', fillOpacity: 0.25 };
+      }
+      return { color: '#0f766e', weight: 1, fillOpacity: 0.8,
+               fillColor: shadeOf(feature.properties.facilities_count).colour };
+   }
+
    const districtLayer = L.geoJSON(null, {
-      style: { color: '#0f766e', weight: 1, fillColor: '#99d5cc', fillOpacity: 0.25 },
+      style: districtStyle,
       onEachFeature: function (feature, layer) {
-         layer.bindTooltip(feature.properties.name, { sticky: true });
+         const n = feature.properties.facilities_count;
+         layer.bindTooltip(feature.properties.name + ' · ' + n +
+                           (n === 1 ? ' facility' : ' facilities'), { sticky: true });
       }
    }).addTo(map);
 
@@ -148,6 +177,21 @@
       return div;
    };
    legend.addTo(map);
+
+   // the shading has its own legend, shown only while the switch is on
+   const shadeLegend = L.control({ position: 'bottomright' });
+   shadeLegend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = '<h4>Facilities per district</h4>' + SHADES.map(function (s) {
+         return '<i class="swatch" style="background:' + s.colour + '"></i>' + s.label;
+      }).join('<br>');
+      return div;
+   };
+
+   shade.addEventListener('change', function () {
+      districtLayer.setStyle(districtStyle);
+      if (shade.checked) { shadeLegend.addTo(map); } else { shadeLegend.remove(); }
+   });
 
    function facilityPopup(p) {
       return '<strong>' + escapeHtml(p.name) + '</strong><br>' +
@@ -242,6 +286,7 @@
          const answer = await response.json();
          if (response.status === 201) {
             facilityLayer.addData(answer);
+            loadDistrictsInView();   // the district's count has just gone up
             map.closePopup();
             status.textContent = 'Saved ' + answer.properties.name +
                ', in ' + answer.properties.district;
