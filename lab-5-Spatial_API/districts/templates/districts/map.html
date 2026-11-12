@@ -21,11 +21,23 @@
 
 <div id="panel">
    <div class="modes" role="radiogroup" aria-label="What a click on the map does">
-      <label><input type="radio" name="mode" value="look" checked> Explore</label>
-      <label><input type="radio" name="mode" value="add"> Add a facility</label>
-      <label><input type="radio" name="mode" value="near"> Find nearby (25 km)</label>
+      <label class="mode">
+         <input type="radio" name="mode" value="look" checked>
+         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/></svg>
+         <span>Explore</span>
+      </label>
+      <label class="mode">
+         <input type="radio" name="mode" value="add">
+         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.4-6.5-10.5a6.5 6.5 0 0 1 13 0C18.5 15.6 12 21 12 21z"/><path d="M12 8v5.5M9.25 10.75h5.5"/></svg>
+         <span>Add a facility</span>
+      </label>
+      <label class="mode">
+         <input type="radio" name="mode" value="near">
+         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="9.5" stroke-dasharray="2.2 3"/></svg>
+         <span>Find nearby <small>25 km</small></span>
+      </label>
    </div>
-   <span id="status">loading...</span>
+   <span id="status" class="badge">loading...</span>
    <span id="hint" class="hint"></span>
 </div>
 

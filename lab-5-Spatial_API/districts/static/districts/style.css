@@ -50,26 +50,129 @@ h1 { margin: 0; font-size: 28px; letter-spacing: .03em; }
    box-shadow: 0 4px 14px rgba(22, 101, 52, .15);
 }
 
-.modes { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; }
-.modes label, .field label { font-size: 14px; font-weight: 600; color: #14532d; }
-.modes input { accent-color: #166534; }
+/* the menu: what a click on the map does, as a segmented control */
+.modes {
+   display: inline-flex;
+   flex-wrap: wrap;
+   gap: 4px;
+   padding: 4px;
+   background: #e6f5ec;
+   border: 1px solid #b6dfc6;
+   border-radius: 999px;
+}
 
-.field { display: flex; align-items: center; gap: 6px; }
+.mode {
+   position: relative;
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+   padding: 7px 16px 7px 13px;
+   border-radius: 999px;
+   font-size: 14px;
+   font-weight: 600;
+   color: #14532d;
+   cursor: pointer;
+   transition: background .15s, color .15s, box-shadow .15s;
+}
+
+.mode:hover { background: #cfeadb; }
+
+/* the real radio button stays, invisible, on top of its label: keyboard and screen readers still work */
+.mode input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+
+.mode svg {
+   width: 18px;
+   height: 18px;
+   fill: none;
+   stroke: currentColor;
+   stroke-width: 1.9;
+   stroke-linecap: round;
+   stroke-linejoin: round;
+}
+
+.mode small { font-size: 12px; font-weight: 700; opacity: .75; }
+
+.mode:has(input:checked) {
+   color: #fff;
+   background: linear-gradient(135deg, #166534 0%, #15803d 100%);
+   box-shadow: 0 2px 8px rgba(22, 101, 52, .4);
+}
+
+.mode:has(input:focus-visible) { outline: 2px solid #84cc16; outline-offset: 2px; }
+
+.field { display: flex; align-items: center; gap: 8px; }
+.field label { font-size: 13px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #3f6b55; }
 
 select {
    font: inherit;
    font-size: 14px;
-   padding: 4px 8px;
-   color: #0f2e22;
-   background: #f4fbf7;
+   font-weight: 600;
+   padding: 6px 30px 6px 12px;
+   color: #14532d;
+   background: #f4fbf7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23166534' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center;
    border: 1px solid #86c4a0;
-   border-radius: 8px;
+   border-radius: 999px;
+   appearance: none;
+   cursor: pointer;
 }
 
+select:hover { border-color: #166534; }
 select:focus-visible, button:focus-visible { outline: 2px solid #84cc16; outline-offset: 1px; }
 
-#status { margin-left: auto; color: #166534; font-size: 14px; font-weight: 700; }
-.hint { flex-basis: 100%; margin: -2px 0 0; font-size: 13px; color: #3f6b55; }
+/* a switch for the yes-or-no choices */
+.toggle { display: inline-flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; color: #14532d; cursor: pointer; }
+.toggle input {
+   appearance: none;
+   position: relative;
+   width: 38px;
+   height: 22px;
+   margin: 0;
+   border-radius: 999px;
+   background: #b9d6c6;
+   cursor: pointer;
+   transition: background .15s;
+}
+.toggle input::after {
+   content: "";
+   position: absolute;
+   top: 3px;
+   left: 3px;
+   width: 16px;
+   height: 16px;
+   border-radius: 50%;
+   background: #fff;
+   box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+   transition: transform .15s;
+}
+.toggle input:checked { background: #166534; }
+.toggle input:checked::after { transform: translateX(16px); }
+.toggle input:focus-visible { outline: 2px solid #84cc16; outline-offset: 2px; }
+
+/* what the last request brought back */
+.badge {
+   margin-left: auto;
+   padding: 5px 14px;
+   font-size: 13px;
+   font-weight: 700;
+   color: #14532d;
+   background: #ecfccb;
+   border: 1px solid #bef264;
+   border-radius: 999px;
+}
+
+.hint { flex-basis: 100%; margin: 0; font-size: 13px; color: #3f6b55; }
+.hint::before {
+   content: "i";
+   display: inline-grid;
+   place-items: center;
+   width: 16px;
+   height: 16px;
+   margin-right: 8px;
+   font: italic 700 11px/1 Georgia, serif;
+   color: #fff;
+   background: #166534;
+   border-radius: 50%;
+}
 
 /* the map fills what the header and panel leave, never under 420 px */
 #map {
@@ -112,7 +215,7 @@ select:focus-visible, button:focus-visible { outline: 2px solid #84cc16; outline
    header { grid-template-columns: 1fr; justify-items: center; gap: 8px; }
    .logo { height: 48px; }
    h1 { font-size: 22px; }
-   #status { margin-left: 0; }
+   .badge { margin-left: 0; }
    #panel, #map { margin-left: 10px; margin-right: 10px; }
    #map { flex: none; height: 70vh; }
 }
