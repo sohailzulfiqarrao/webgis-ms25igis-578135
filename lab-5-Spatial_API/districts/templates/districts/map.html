@@ -326,12 +326,18 @@
       const url = FACILITIES_URL + '?dist=25000&point=' +
          latlng.lng + ',' + latlng.lat + kindParam();
       const data = await (await fetch(url)).json();
-      const names = data.features.map(f => escapeHtml(f.properties.name));
+      // The API sends them nearest first; the distance shown is the one on the ground
+      const names = data.features.map(function (f) {
+         const here = L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
+         const km = latlng.distanceTo(here) / 1000;
+         return escapeHtml(f.properties.name) +
+            ' <span class="dist">' + km.toFixed(1) + ' km</span>';
+      });
 
       L.popup().setLatLng(latlng).setContent(
          '<strong>' + (names.length || 'No') + ' ' +
          (names.length === 1 ? 'facility' : 'facilities') + ' within 25 km</strong>' +
-         (names.length ? '<br>' + names.join('<br>') : '')
+         (names.length ? ', nearest first<br>' + names.join('<br>') : '')
       ).openOn(map);
    }
 

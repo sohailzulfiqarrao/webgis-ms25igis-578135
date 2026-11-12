@@ -206,6 +206,9 @@ select:focus-visible, button:focus-visible { outline: 2px solid #84cc16; outline
 .add-form button:hover { background: #14532d; }
 .error { color: #b42318; font-size: 12px; margin-top: 6px; }
 
+/* the distance after a name in the nearby list */
+.dist { margin-left: 4px; padding: 1px 7px; font-size: 12px; font-weight: 700; color: #14532d; background: #ecfccb; border-radius: 999px; white-space: nowrap; }
+
 .legend { background: white; padding: 8px 10px; border-radius: 4px; font-size: 13px; line-height: 1.6; white-space: nowrap;
           box-shadow: 0 1px 4px rgba(0, 0, 0, .25); max-height: calc(100vh - 380px); overflow-y: auto; }
 .legend h4 { margin: 0 0 4px; font-size: 14px; }
