@@ -37,6 +37,16 @@
          <span>Find nearby <small>25 km</small></span>
       </label>
    </div>
+   <div class="field">
+      <label for="kind">Show</label>
+      <select id="kind">
+         <option value="">All facilities</option>
+         <option value="school">Schools</option>
+         <option value="health">Health facilities</option>
+         <option value="water">Water points</option>
+         <option value="other">Other places</option>
+      </select>
+   </div>
    <span id="status" class="badge">loading...</span>
    <span id="hint" class="hint"></span>
 </div>
@@ -162,6 +172,13 @@
       }
    }).addTo(map);
 
+   // The "Show" menu filters on the server: ?kind=health is added to every facility request
+   const kindMenu = document.getElementById('kind');
+
+   function kindParam() {
+      return kindMenu.value ? '&kind=' + encodeURIComponent(kindMenu.value) : '';
+   }
+
    // Facilities load by view too, so the map keeps working with ten thousand of them
    let pendingFacilities = null;
 
@@ -170,7 +187,7 @@
       pendingFacilities = new AbortController();
 
       try {
-         const response = await fetch(FACILITIES_URL + '?in_bbox=' + viewBbox(),
+         const response = await fetch(FACILITIES_URL + '?in_bbox=' + viewBbox() + kindParam(),
                                       { signal: pendingFacilities.signal });
          const text = await response.text();
          const data = JSON.parse(text);
@@ -185,6 +202,7 @@
    }
 
    map.on('moveend', loadFacilitiesInView);
+   kindMenu.addEventListener('change', loadFacilitiesInView);
    loadFacilitiesInView();
 
    function addForm(latlng) {
@@ -261,7 +279,7 @@
                          fillOpacity: 0.05 }).addTo(nearLayer);
 
       const url = FACILITIES_URL + '?dist=25000&point=' +
-         latlng.lng + ',' + latlng.lat;
+         latlng.lng + ',' + latlng.lat + kindParam();
       const data = await (await fetch(url)).json();
       const names = data.features.map(f => escapeHtml(f.properties.name));
 
